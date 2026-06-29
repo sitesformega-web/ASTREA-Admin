@@ -1,0 +1,1 @@
+// Módulo preparado para futuras implementaciones.
