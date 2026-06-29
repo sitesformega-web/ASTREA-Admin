@@ -1,0 +1,47 @@
+/* Brand Header */
+
+.brand-line {
+  width: 100%;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand-signature,
+.brand-signature:visited,
+.brand-signature:hover,
+.brand-signature:active {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.brand-signature {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color var(--transition-fast);
+}
+
+.brand-signature:hover {
+  color: var(--text);
+}
+
+.brand-service {
+  font-weight: 500;
+}
+
+.brand-by {
+  font-weight: 400;
+  text-transform: lowercase;
+}
+
+.brand-astrea {
+  font-weight: 700;
+}
+
+.admin-title-block {
+  margin-top: var(--space-4);
+}
