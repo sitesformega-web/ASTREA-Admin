@@ -8,8 +8,18 @@ function renderAdminHeader() {
   const header = document.getElementById("admin-header");
 
   header.innerHTML = `
-    <h1 class="admin-title">${ADMIN_CONFIG.businessName}</h1>
-    <p class="admin-subtitle">Panel administrativo ASTREA™</p>
+    <div class="brand-line">
+      <a class="brand-signature" href="#" aria-label="ASTREA">
+        <span class="brand-service">PANEL ADMINISTRATIVO</span>
+        <span class="brand-by">by</span>
+        <span class="brand-astrea">ASTREA™</span>
+      </a>
+    </div>
+
+    <div class="admin-title-block">
+      <h1 class="admin-title">${ADMIN_CONFIG.businessName}</h1>
+      <p class="admin-subtitle">Gestioná tu negocio desde un solo lugar.</p>
+    </div>
   `;
 }
 
