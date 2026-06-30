@@ -1,47 +1,31 @@
-const STATE = {
+const ADMIN_STATE = {
+  currentModule: "orders",
 
-  orders: [],
-
-  selectedOrder: null,
-
-  filters: {
-
-    status: "pending"
-
+  user: {
+    name: "Admin ASTREA",
+    email: "",
+    role: ADMIN_CONFIG.role
   },
 
-  loading: false
+  orders: [],
+  products: [],
+  customers: [],
 
+  ordersFilter: "pending",
+  expandedOrderId: null,
+
+  loading: false
 };
 
 function setOrders(orders) {
-  STATE.orders = orders;
+  ADMIN_STATE.orders = Array.isArray(orders) ? orders : [];
 }
 
-function getOrdersByStatus(status) {
-
-  if (status === "all") {
-    return STATE.orders;
-  }
-
-  return STATE.orders.filter(order => order.estado === status);
-
+function setOrdersFilter(status) {
+  ADMIN_STATE.ordersFilter = status;
 }
 
-function setSelectedOrder(orderId) {
-
-  STATE.selectedOrder = orderId;
-
-}
-
-function getSelectedOrder() {
-
-  return STATE.orders.find(order => order.id === STATE.selectedOrder);
-
-}
-
-function setFilter(status) {
-
-  STATE.filters.status = status;
-
+function setExpandedOrder(orderId) {
+  ADMIN_STATE.expandedOrderId =
+    ADMIN_STATE.expandedOrderId === orderId ? null : orderId;
 }
