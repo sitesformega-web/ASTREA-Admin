@@ -28,6 +28,7 @@ function renderAdminMain() {
 
   if (ADMIN_STATE.currentModule === "orders") {
     renderOrdersModule(main);
+    loadOrders();
     return;
   }
 
