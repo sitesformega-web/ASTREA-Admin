@@ -1,0 +1,25 @@
+.ui-accordion {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+.ui-accordion-head {
+  width: 100%;
+  min-height: 54px;
+  padding: 0 var(--space-4);
+  border: none;
+  background: var(--surface);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 800;
+  text-align: left;
+}
+
+.ui-accordion-body {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border);
+}

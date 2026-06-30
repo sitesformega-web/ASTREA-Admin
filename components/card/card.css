@@ -1,0 +1,23 @@
+.ui-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-4);
+}
+
+.ui-card.compact {
+  padding: var(--space-3);
+}
+
+.ui-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.ui-card-subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
