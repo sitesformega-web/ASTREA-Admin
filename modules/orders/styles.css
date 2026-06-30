@@ -1,14 +1,20 @@
 html,
-body,
-#admin-app {
+body {
+  max-width: 100%;
   overflow-x: hidden;
 }
 
+#admin-app,
 #admin-main,
-.orders-module {
+.orders-module,
+.orders-list,
+.order-card,
+.order-card-main,
+.order-detail {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  overflow-x: hidden;
 }
 
 .orders-module {
@@ -28,13 +34,16 @@ body,
 }
 
 .order-filters {
-  width: 100%;
-  max-width: 100%;
   display: flex;
   gap: var(--space-2);
   overflow-x: auto;
   padding-bottom: var(--space-2);
   margin-bottom: var(--space-4);
+  scrollbar-width: none;
+}
+
+.order-filters::-webkit-scrollbar {
+  display: none;
 }
 
 .order-filter {
@@ -46,6 +55,7 @@ body,
   padding: 8px 13px;
   font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .order-filter span {
@@ -64,21 +74,15 @@ body,
 }
 
 .orders-list {
-  width: 100%;
-  max-width: 100%;
   display: grid;
   gap: var(--space-3);
 }
 
 .order-card {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-soft);
-  overflow: hidden;
 }
 
 .order-card.is-new {
@@ -86,15 +90,21 @@ body,
 }
 
 .order-card-main {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
   border: none;
   background: transparent;
   padding: var(--space-4);
   display: grid;
   gap: var(--space-3);
   text-align: left;
+}
+
+.order-card-main strong,
+.order-card-main span,
+.order-detail p,
+.order-item span,
+.order-item strong {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .order-card-main strong {
@@ -111,6 +121,7 @@ body,
   display: flex;
   justify-content: space-between;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .order-status-line {
@@ -127,29 +138,13 @@ body,
   flex: 0 0 auto;
 }
 
-.order-dot.success {
-  background: var(--success);
-}
-
-.order-dot.warning {
-  background: var(--warning);
-}
-
-.order-dot.info {
-  background: var(--info);
-}
-
-.order-dot.danger {
-  background: var(--danger);
-}
-
-.order-dot.neutral {
-  background: var(--muted);
-}
+.order-dot.success { background: var(--success); }
+.order-dot.warning { background: var(--warning); }
+.order-dot.info { background: var(--info); }
+.order-dot.danger { background: var(--danger); }
+.order-dot.neutral { background: var(--muted); }
 
 .order-detail {
-  width: 100%;
-  max-width: 100%;
   border-top: 1px solid var(--border);
   padding: var(--space-4);
   display: grid;
@@ -190,6 +185,7 @@ body,
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--border);
 }
@@ -201,6 +197,7 @@ body,
 
 .order-total strong {
   font-size: 16px;
+  white-space: nowrap;
 }
 
 .order-actions {
