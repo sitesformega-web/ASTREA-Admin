@@ -1,23 +1,10 @@
-html,
-body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-#admin-app,
-#admin-main,
 .orders-module,
-.orders-list,
-.order-card,
-.order-card-main,
-.order-detail {
+#ordersView,
+.orders-list {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow-x: hidden;
-}
-
-.orders-module {
+  overflow: hidden;
   display: grid;
   gap: var(--space-4);
 }
@@ -37,13 +24,10 @@ body {
   display: flex;
   gap: var(--space-2);
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: var(--space-2);
   margin-bottom: var(--space-4);
-  scrollbar-width: none;
-}
-
-.order-filters::-webkit-scrollbar {
-  display: none;
+  max-width: 100%;
 }
 
 .order-filter {
@@ -63,26 +47,22 @@ body {
   color: var(--muted);
 }
 
-.order-filter.active {
+.order-filter.active,
+.order-filter.active span {
   background: var(--primary);
   border-color: var(--primary);
   color: white;
 }
 
-.order-filter.active span {
-  color: white;
-}
-
-.orders-list {
-  display: grid;
-  gap: var(--space-3);
-}
-
 .order-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-soft);
+  overflow: hidden;
 }
 
 .order-card.is-new {
@@ -90,21 +70,13 @@ body {
 }
 
 .order-card-main {
+  width: 100%;
   border: none;
   background: transparent;
   padding: var(--space-4);
   display: grid;
   gap: var(--space-3);
   text-align: left;
-}
-
-.order-card-main strong,
-.order-card-main span,
-.order-detail p,
-.order-item span,
-.order-item strong {
-  overflow-wrap: anywhere;
-  word-break: break-word;
 }
 
 .order-card-main strong {
@@ -117,7 +89,9 @@ body {
   font-size: 13px;
 }
 
-.order-meta {
+.order-meta,
+.order-total,
+.order-item {
   display: flex;
   justify-content: space-between;
   gap: var(--space-3);
@@ -145,6 +119,9 @@ body {
 .order-dot.neutral { background: var(--muted); }
 
 .order-detail {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   border-top: 1px solid var(--border);
   padding: var(--space-4);
   display: grid;
@@ -168,9 +145,6 @@ body {
 }
 
 .order-item {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-3);
   padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--border);
   font-size: 14px;
@@ -181,11 +155,18 @@ body {
   padding-bottom: 0;
 }
 
+.order-item span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.order-item strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .order-total {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--border);
 }
@@ -201,6 +182,13 @@ body {
 }
 
 .order-actions {
+  width: 100%;
+  max-width: 100%;
   display: grid;
   gap: var(--space-2);
+}
+
+.order-actions .ui-button {
+  width: 100%;
+  max-width: 100%;
 }
