@@ -1,12 +1,35 @@
+let ORDERS_AUTO_REFRESH = null;
+
 async function loadOrders() {
+  try {
+    const orders = await adminFetchOrders();
+    setOrders(orders);
+    renderOrdersView();
+    startOrdersAutoRefresh();
+  } catch (error) {
+    console.error(error);
+    showToast("No se pudieron cargar los pedidos.", "error");
+  }
+}
+
+async function refreshOrdersSilently() {
+  if (ADMIN_STATE.currentModule !== "orders") return;
+
   try {
     const orders = await adminFetchOrders();
     setOrders(orders);
     renderOrdersView();
   } catch (error) {
     console.error(error);
-    showToast("No se pudieron cargar los pedidos.", "error");
   }
+}
+
+function startOrdersAutoRefresh() {
+  if (ORDERS_AUTO_REFRESH) return;
+
+  ORDERS_AUTO_REFRESH = setInterval(() => {
+    refreshOrdersSilently();
+  }, 15000);
 }
 
 async function handleOrderStatusChange(orderId, status) {
@@ -15,10 +38,7 @@ async function handleOrderStatusChange(orderId, status) {
 
     ADMIN_STATE.orders = ADMIN_STATE.orders.map(order => {
       if (order.id === orderId) {
-        return {
-          ...order,
-          estado: status
-        };
+        return { ...order, estado: status };
       }
 
       return order;
