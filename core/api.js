@@ -1,37 +1,37 @@
-const API_BASE = "TU_URL_EXEC";
+async function adminApiRequest(action, options = {}) {
+  const url = `${ADMIN_CONFIG.api.endpoint}?action=${action}`;
 
-async function apiGet(action) {
-  const response = await fetch(`${API_BASE}?action=${action}`);
-  return response.json();
+  const response = await fetch(url, {
+    method: options.method || "GET",
+    cache: "no-store",
+    body: options.body ? JSON.stringify(options.body) : undefined
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.message || "Error en ASTREA Admin.");
+  }
+
+  return data;
 }
 
-async function apiPost(action, body) {
-  const response = await fetch(`${API_BASE}?action=${action}`, {
+async function adminFetchProducts() {
+  const data = await adminApiRequest("products");
+  return data.products || [];
+}
+
+async function adminFetchOrders() {
+  const data = await adminApiRequest("orders");
+  return data.orders || [];
+}
+
+async function adminUpdateOrderStatus(orderId, status) {
+  return await adminApiRequest("updateOrderStatus", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(body)
+    body: {
+      orderId,
+      status
+    }
   });
-
-  return response.json();
-}
-
-async function getOrders() {
-  return apiGet("orders");
-}
-
-async function updateOrderStatus(orderId, status) {
-  return apiPost("updateOrderStatus", {
-    orderId,
-    status
-  });
-}
-
-async function getProducts() {
-  return apiGet("products");
-}
-
-async function getReports() {
-  return apiGet("reports");
 }
