@@ -1,11 +1,24 @@
-* {
+/* ==========================================================
+   ASTREA™ Admin
+   Global CSS v2
+   Base layout + shared primitives
+   ========================================================== */
+
+/* Reset */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html,
 body {
+  width: 100%;
+  max-width: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 body {
@@ -25,12 +38,28 @@ button {
   cursor: pointer;
 }
 
+img,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+/* App Layout */
+
 #admin-app {
   width: 100%;
   max-width: 480px;
   min-height: 100vh;
   margin: 0 auto;
-  padding: var(--space-5) var(--space-4) 92px;
+  padding: var(--space-5) var(--space-4) 108px;
+  overflow-x: hidden;
+}
+
+#admin-header,
+#admin-main,
+#admin-nav {
+  width: 100%;
+  max-width: 100%;
 }
 
 #admin-header {
@@ -40,7 +69,10 @@ button {
 #admin-main {
   display: grid;
   gap: var(--space-4);
+  min-width: 0;
 }
+
+/* Typography */
 
 .admin-title {
   margin: 0;
@@ -56,17 +88,23 @@ button {
   font-size: 14px;
 }
 
+/* Legacy Admin Primitives */
+
 .admin-card {
+  width: 100%;
+  max-width: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-soft);
   padding: var(--space-4);
+  overflow: hidden;
 }
 
 .admin-grid {
   display: grid;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .admin-action-card {
@@ -92,6 +130,8 @@ button {
   font-size: 13px;
 }
 
+/* Bottom Navigation */
+
 .admin-bottom-nav {
   position: fixed;
   left: 50%;
@@ -100,7 +140,7 @@ button {
   width: calc(100% - 28px);
   max-width: 460px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   padding: 8px;
   background: var(--surface);
@@ -111,6 +151,7 @@ button {
 }
 
 .nav-btn {
+  min-width: 0;
   border: none;
   background: transparent;
   color: var(--muted);
@@ -118,12 +159,15 @@ button {
   padding: 9px 4px;
   font-size: 11px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .nav-btn.active {
   background: var(--primary);
   color: white;
 }
+
+/* Shared Components */
 
 .badge {
   display: inline-flex;
@@ -161,6 +205,8 @@ button {
   color: var(--muted);
 }
 
+/* Toast */
+
 #toast-root {
   position: fixed;
   left: 50%;
@@ -181,6 +227,8 @@ button {
   font-weight: 700;
   text-align: center;
 }
+
+/* Responsive */
 
 @media (min-width: 860px) {
   #admin-app {
