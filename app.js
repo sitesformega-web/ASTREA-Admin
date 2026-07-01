@@ -34,6 +34,7 @@ function renderAdminMain() {
 
   if (ADMIN_STATE.currentModule === "products") {
     renderProductsModule(main);
+    loadProducts();
     return;
   }
 
