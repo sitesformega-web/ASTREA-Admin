@@ -14,6 +14,9 @@ const ADMIN_STATE = {
   ordersFilter: "pending",
   expandedOrderId: null,
 
+  expandedProductId: null,
+  creatingProduct: false,
+
   loading: false
 };
 
@@ -28,4 +31,17 @@ function setOrdersFilter(status) {
 function setExpandedOrder(orderId) {
   ADMIN_STATE.expandedOrderId =
     ADMIN_STATE.expandedOrderId === orderId ? null : orderId;
+}
+
+function setProducts(products) {
+  ADMIN_STATE.products = Array.isArray(products) ? products : [];
+}
+
+function setExpandedProduct(productId) {
+  ADMIN_STATE.expandedProductId =
+    ADMIN_STATE.expandedProductId === productId ? null : productId;
+}
+
+function setCreatingProduct(value) {
+  ADMIN_STATE.creatingProduct = Boolean(value);
 }
