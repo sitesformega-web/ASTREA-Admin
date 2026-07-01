@@ -17,8 +17,29 @@ async function adminApiRequest(action, options = {}) {
 }
 
 async function adminFetchProducts() {
-  const data = await adminApiRequest("products");
+  const data = await adminApiRequest("adminProducts");
   return data.products || [];
+}
+
+async function adminCreateProduct(product) {
+  return await adminApiRequest("createProduct", {
+    method: "POST",
+    body: product
+  });
+}
+
+async function adminUpdateProduct(product) {
+  return await adminApiRequest("updateProduct", {
+    method: "POST",
+    body: product
+  });
+}
+
+async function adminToggleProduct(id) {
+  return await adminApiRequest("toggleProduct", {
+    method: "POST",
+    body: { id }
+  });
 }
 
 async function adminFetchOrders() {
