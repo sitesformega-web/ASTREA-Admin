@@ -13,6 +13,7 @@ async function loadProducts() {
     setProducts(products);
 
     renderProductsView();
+     initializeProductsModule();
 
   } catch (error) {
 
@@ -537,5 +538,142 @@ function compareProducts(a, b) {
       String(b.nombre),
       "es"
     );
+
+}
+/* ==========================================================
+   Nuevo producto
+   ========================================================== */
+
+function initializeProductsModule() {
+
+  const newButton =
+    document.getElementById("newProductBtn");
+
+  if (newButton) {
+
+    newButton.addEventListener("click", () => {
+
+      if (ADMIN_STATE.creatingProduct) return;
+
+      ADMIN_STATE.creatingProduct = true;
+
+      mountProductCreator();
+
+      bindCreateProductEvents();
+
+    });
+
+  }
+
+}
+
+function bindCreateProductEvents() {
+
+  const cancel =
+    document.getElementById("cancelNewProduct");
+
+  if (cancel) {
+
+    cancel.addEventListener("click", () => {
+
+      ADMIN_STATE.creatingProduct = false;
+
+      renderProductsView();
+
+    });
+
+  }
+
+  const save =
+    document.getElementById("saveNewProduct");
+
+  if (save) {
+
+    save.addEventListener("click", createProduct);
+
+  }
+
+}
+
+async function createProduct() {
+
+  try {
+
+    const product = {
+
+      nombre:
+        document
+          .getElementById("new-product-name")
+          .value
+          .trim(),
+
+      categoria:
+        document
+          .getElementById("new-product-category")
+          .value
+          .trim(),
+
+      tipoVenta:
+        document
+          .getElementById("new-product-type")
+          .value,
+
+      precioUnidad:
+        Number(
+          document
+            .getElementById("new-product-unit")
+            .value
+        ) || "",
+
+      precioKg:
+        Number(
+          document
+            .getElementById("new-product-weight")
+            .value
+        ) || "",
+
+      stock:
+        Number(
+          document
+            .getElementById("new-product-stock")
+            .value
+        ) || "",
+
+      imagen:
+        document
+          .getElementById("new-product-image")
+          .value
+          .trim(),
+
+      orden:
+        Number(
+          document
+            .getElementById("new-product-order")
+            .value
+        ) || 999
+
+    };
+
+    await adminCreateProduct(product);
+
+    ADMIN_STATE.creatingProduct = false;
+
+    await loadProducts();
+
+    showToast(
+      "Producto creado correctamente.",
+      "success"
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast(
+      "No se pudo crear el producto.",
+      "error"
+    );
+
+  }
 
 }
