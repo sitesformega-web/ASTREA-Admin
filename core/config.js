@@ -10,6 +10,6 @@ const ADMIN_CONFIG = {
   },
 
   api: {
-    endpoint: "https://script.google.com/macros/s/AKfycby_xfLI0rKIZrsPB5LlPqUUKdHvFfRN_cRqpKqI7bNeQZ-BMGMwOlocf-0wH2Glf6g2Cw/exec"
+    endpoint: "https://script.google.com/macros/s/AKfycbzfMxH_qJcZYNrSuiFjVG6hntnLgkgf3BmZ6FKuAQaajQgBENuviQEBAOfK9GBMzV7q6Q/exec"
   }
 };
