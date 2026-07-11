@@ -198,3 +198,111 @@
     background:#f5f5f5;
 
 }
+/* ==========================================================
+   Sprint 2.1
+   Mejoras UX - Productos
+   ========================================================== */
+
+/* Grupos de precio */
+
+.product-price-group{
+
+    display:grid;
+
+    gap:6px;
+
+}
+
+/* Mensajes de validación */
+
+.product-field-error{
+
+    display:block;
+
+    min-height:16px;
+
+    margin-top:2px;
+
+    font-size:11px;
+
+    color:var(--danger);
+
+    font-weight:500;
+
+}
+
+/* Mejor feedback visual */
+
+.product-detail input:focus,
+
+.product-detail select:focus{
+
+    outline:none;
+
+    border-color:var(--primary);
+
+    box-shadow:0 0 0 3px rgba(34,167,69,.12);
+
+    transition:
+
+        border-color var(--transition-fast),
+
+        box-shadow var(--transition-fast);
+
+}
+
+/* Botones deshabilitados */
+
+.product-actions button:disabled{
+
+    opacity:.65;
+
+    cursor:not-allowed;
+
+}
+
+/* Preview */
+
+.product-preview{
+
+    transition:
+
+        opacity var(--transition-fast),
+
+        transform var(--transition-fast);
+
+}
+
+.product-preview:hover{
+
+    transform:scale(1.01);
+
+}
+
+/* Aparición suave */
+
+.product-card{
+
+    animation:productFade .18s ease;
+
+}
+
+@keyframes productFade{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(4px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:none;
+
+    }
+
+}
