@@ -562,6 +562,8 @@ function initializeProductsModule() {
 
       bindCreateProductEvents();
 
+      initializeProductEnhancements();
+
     });
 
   }
