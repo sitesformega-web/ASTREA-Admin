@@ -149,76 +149,49 @@ function renderProductCard(product) {
 
 function renderProductEditor(product) {
 
-  const isUnit =
-    product.tipoVenta === "unit";
-
   return `
 
     <div class="product-detail">
 
       <label>
 
-        Nombre *
+        Nombre
 
         <input
           id="product-name-${product.id}"
           value="${product.nombre || ""}"
-          maxlength="120"
-          autocomplete="off"
         >
-
-        <small
-          class="product-field-error"
-          id="product-name-error-${product.id}"
-        ></small>
 
       </label>
 
       <label>
 
-        Imagen (URL)
+        Imagen
 
         <input
           id="product-image-${product.id}"
-          type="url"
           value="${product.imagen || ""}"
-          placeholder="https://..."
-          autocomplete="off"
         >
-
-        <small
-          class="product-field-error"
-          id="product-image-error-${product.id}"
-        ></small>
 
       </label>
 
       <img
-        id="product-preview-${product.id}"
         class="product-preview"
         src="${product.imagen || ""}"
-        alt="Vista previa"
         onerror="this.style.display='none';"
       >
 
       <label>
 
-        Categoría *
+        Categoría
 
         <input
           id="product-category-${product.id}"
           value="${product.categoria || ""}"
-          autocomplete="off"
         >
 
-        <small
-          class="product-field-error"
-          id="product-category-error-${product.id}"
-        ></small>
-
       </label>
-
-      <label>
+            <label>
 
         Tipo de venta
 
@@ -228,14 +201,14 @@ function renderProductEditor(product) {
 
           <option
             value="unit"
-            ${isUnit ? "selected" : ""}
+            ${product.tipoVenta === "unit" ? "selected" : ""}
           >
             Por unidad
           </option>
 
           <option
             value="weight"
-            ${!isUnit ? "selected" : ""}
+            ${product.tipoVenta === "weight" ? "selected" : ""}
           >
             Por peso
           </option>
@@ -244,61 +217,29 @@ function renderProductEditor(product) {
 
       </label>
 
-      <div
-        id="unit-price-group-${product.id}"
-        class="product-price-group"
-        style="${isUnit ? "" : "display:none;"}"
-      >
+      <label>
 
-        <label>
+        Precio por unidad
 
-          Precio por unidad *
+        <input
+          id="product-unit-price-${product.id}"
+          type="number"
+          value="${product.precioUnidad || ""}"
+        >
 
-          <input
-            id="product-unit-price-${product.id}"
-            type="number"
-            min="0"
-            step="0.01"
-            inputmode="decimal"
-            value="${product.precioUnidad || ""}"
-          >
+      </label>
 
-          <small
-            class="product-field-error"
-            id="product-unit-error-${product.id}"
-          ></small>
+      <label>
 
-        </label>
+        Precio por kilo
 
-      </div>
+        <input
+          id="product-weight-price-${product.id}"
+          type="number"
+          value="${product.precioKg || ""}"
+        >
 
-      <div
-        id="weight-price-group-${product.id}"
-        class="product-price-group"
-        style="${isUnit ? "display:none;" : ""}"
-      >
-
-        <label>
-
-          Precio por kilo *
-
-          <input
-            id="product-weight-price-${product.id}"
-            type="number"
-            min="0"
-            step="0.01"
-            inputmode="decimal"
-            value="${product.precioKg || ""}"
-          >
-
-          <small
-            class="product-field-error"
-            id="product-weight-error-${product.id}"
-          ></small>
-
-        </label>
-
-      </div>
+      </label>
 
       <details class="product-more">
 
@@ -315,9 +256,6 @@ function renderProductEditor(product) {
           <input
             id="product-stock-${product.id}"
             type="number"
-            min="0"
-            step="1"
-            inputmode="numeric"
             value="${product.stock || ""}"
           >
 
@@ -330,9 +268,6 @@ function renderProductEditor(product) {
           <input
             id="product-order-${product.id}"
             type="number"
-            min="1"
-            step="1"
-            inputmode="numeric"
             value="${product.orden || 999}"
           >
 
@@ -345,7 +280,6 @@ function renderProductEditor(product) {
         <button
           class="ui-button primary"
           data-save-product="${product.id}"
-          type="button"
         >
 
           Guardar cambios
@@ -355,7 +289,6 @@ function renderProductEditor(product) {
         <button
           class="ui-button secondary"
           data-toggle-product="${product.id}"
-          type="button"
         >
 
           ${product.activo === true ||
@@ -374,6 +307,7 @@ function renderProductEditor(product) {
   `;
 
 }
+
 function bindProductsEvents() {
 
   const searchInput =
@@ -381,7 +315,10 @@ function bindProductsEvents() {
 
   if (searchInput) {
 
-    searchInput.oninput = event => {
+    searchInput.value =
+      ADMIN_STATE.productsSearch || "";
+
+    searchInput.addEventListener("input", event => {
 
       ADMIN_STATE.productsSearch =
         event.target.value
@@ -390,138 +327,10 @@ function bindProductsEvents() {
 
       renderProductsView();
 
-    };
+    });
 
   }
 
-  document
-    .querySelectorAll("[data-expand-product]")
-    .forEach(card => {
-
-      card.onclick = () => {
-
-        const id =
-          card.dataset.expandProduct;
-
-        ADMIN_STATE.expandedProductId =
-
-          ADMIN_STATE.expandedProductId === id
-
-            ? null
-
-            : id;
-
-        renderProductsView();
-
-      };
-
-    });
-
-  document
-    .querySelectorAll("[data-save-product]")
-    .forEach(button => {
-
-      button.onclick = () =>
-
-        saveProduct(
-          button.dataset.saveProduct
-        );
-
-    });
-
-  document
-    .querySelectorAll("[data-toggle-product]")
-    .forEach(button => {
-
-      button.onclick = () => {
-
-        if (!confirm(
-          "¿Deseas cambiar el estado de este producto?"
-        )) return;
-
-        toggleProduct(
-          button.dataset.toggleProduct
-        );
-
-      };
-
-    });
-
-  initializeProductEditors();
-
-}
-function initializeProductEditors() {
-
-  ADMIN_STATE.products.forEach(product => {
-
-    const imageInput =
-      document.getElementById(
-        `product-image-${product.id}`
-      );
-
-    const preview =
-      document.getElementById(
-        `product-preview-${product.id}`
-      );
-
-    if (imageInput && preview) {
-
-      imageInput.oninput = () => {
-
-        const url =
-          imageInput.value.trim();
-
-        if (!url) {
-
-          preview.style.display = "none";
-
-          return;
-
-        }
-
-        preview.src = url;
-
-        preview.style.display = "";
-
-      };
-
-    }
-
-    const type =
-      document.getElementById(
-        `product-type-${product.id}`
-      );
-
-    const unit =
-      document.getElementById(
-        `unit-price-group-${product.id}`
-      );
-
-    const weight =
-      document.getElementById(
-        `weight-price-group-${product.id}`
-      );
-
-    if (type && unit && weight) {
-
-      type.onchange = () => {
-
-        const isUnit =
-          type.value === "unit";
-
-        unit.style.display =
-          isUnit ? "" : "none";
-
-        weight.style.display =
-          isUnit ? "none" : "";
-
-      };
-
-    }
-
-  });
-
-}
   document
     .querySelectorAll("[data-expand-product]")
     .forEach(button => {
