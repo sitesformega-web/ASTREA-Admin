@@ -690,7 +690,14 @@ function initializeProductEnhancements() {
 
   initializeProductTypeToggle();
 
+  initializeProductValidation();
+
 }
+
+/* ==========================================================
+   Enhancement 001
+   Preview automática
+   ========================================================== */
 
 function initializeProductPreview() {
 
@@ -762,6 +769,12 @@ function initializeProductPreview() {
   });
 
 }
+
+/* ==========================================================
+   Enhancement 002
+   Cambio tipo de venta
+   ========================================================== */
+
 function initializeProductTypeToggle() {
 
   // Nuevo producto
@@ -835,5 +848,428 @@ function initializeProductTypeToggle() {
     type.onchange = updateGroups;
 
   });
+
+}
+
+/* ==========================================================
+   Enhancement 003
+   Validaciones de Productos
+   ========================================================== */
+
+function initializeProductValidation() {
+
+  if (
+    document.documentElement.dataset
+      .productValidationBound === "true"
+  ) {
+    return;
+  }
+
+  document.documentElement.dataset
+    .productValidationBound = "true";
+
+  /*
+   * Usamos captura para validar antes de que se ejecuten
+   * createProduct() o saveProduct().
+   */
+  document.addEventListener(
+    "click",
+    event => {
+
+      const createButton =
+        event.target.closest("#saveNewProduct");
+
+      if (createButton) {
+
+        const isValid =
+          validateNewProductForm();
+
+        if (!isValid) {
+
+          event.preventDefault();
+
+          event.stopImmediatePropagation();
+
+          showToast(
+            "Revisá los campos marcados.",
+            "error"
+          );
+
+        }
+
+        return;
+
+      }
+
+      const saveButton =
+        event.target.closest(
+          "[data-save-product]"
+        );
+
+      if (saveButton) {
+
+        const productId =
+          saveButton.dataset.saveProduct;
+
+        const isValid =
+          validateExistingProductForm(
+            productId
+          );
+
+        if (!isValid) {
+
+          event.preventDefault();
+
+          event.stopImmediatePropagation();
+
+          showToast(
+            "Revisá los campos marcados.",
+            "error"
+          );
+
+        }
+
+      }
+
+    },
+    true
+  );
+
+  /*
+   * Limpia el error mientras el usuario corrige el campo.
+   */
+  document.addEventListener(
+    "input",
+    event => {
+
+      const field =
+        event.target.closest(
+          ".product-detail input, " +
+          ".product-detail select"
+        );
+
+      if (!field) return;
+
+      clearProductFieldError(field);
+
+    },
+    true
+  );
+
+}
+
+function validateNewProductForm() {
+
+  const name =
+    document.getElementById(
+      "new-product-name"
+    );
+
+  const category =
+    document.getElementById(
+      "new-product-category"
+    );
+
+  const image =
+    document.getElementById(
+      "new-product-image"
+    );
+
+  const type =
+    document.getElementById(
+      "new-product-type"
+    );
+
+  const unitPrice =
+    document.getElementById(
+      "new-product-unit"
+    );
+
+  const weightPrice =
+    document.getElementById(
+      "new-product-weight"
+    );
+
+  let isValid = true;
+
+  clearProductFieldError(name);
+  clearProductFieldError(category);
+  clearProductFieldError(image);
+  clearProductFieldError(unitPrice);
+  clearProductFieldError(weightPrice);
+
+  if (!name.value.trim()) {
+
+    setProductFieldError(
+      name,
+      "Ingresá el nombre del producto."
+    );
+
+    isValid = false;
+
+  }
+
+  if (!category.value.trim()) {
+
+    setProductFieldError(
+      category,
+      "Ingresá una categoría."
+    );
+
+    isValid = false;
+
+  }
+
+  if (
+    image.value.trim() &&
+    !isValidProductUrl(image.value.trim())
+  ) {
+
+    setProductFieldError(
+      image,
+      "Ingresá una URL válida."
+    );
+
+    isValid = false;
+
+  }
+
+  if (type.value === "unit") {
+
+    if (!isPositivePrice(unitPrice.value)) {
+
+      setProductFieldError(
+        unitPrice,
+        "Ingresá un precio mayor a cero."
+      );
+
+      isValid = false;
+
+    }
+
+  } else {
+
+    if (!isPositivePrice(weightPrice.value)) {
+
+      setProductFieldError(
+        weightPrice,
+        "Ingresá un precio mayor a cero."
+      );
+
+      isValid = false;
+
+    }
+
+  }
+
+  return isValid;
+
+}
+
+function validateExistingProductForm(
+  productId
+) {
+
+  const name =
+    document.getElementById(
+      `product-name-${productId}`
+    );
+
+  const category =
+    document.getElementById(
+      `product-category-${productId}`
+    );
+
+  const image =
+    document.getElementById(
+      `product-image-${productId}`
+    );
+
+  const type =
+    document.getElementById(
+      `product-type-${productId}`
+    );
+
+  const unitPrice =
+    document.getElementById(
+      `product-unit-price-${productId}`
+    );
+
+  const weightPrice =
+    document.getElementById(
+      `product-weight-price-${productId}`
+    );
+
+  let isValid = true;
+
+  clearProductFieldError(name);
+  clearProductFieldError(category);
+  clearProductFieldError(image);
+  clearProductFieldError(unitPrice);
+  clearProductFieldError(weightPrice);
+
+  if (!name.value.trim()) {
+
+    setProductFieldError(
+      name,
+      "Ingresá el nombre del producto."
+    );
+
+    isValid = false;
+
+  }
+
+  if (!category.value.trim()) {
+
+    setProductFieldError(
+      category,
+      "Ingresá una categoría."
+    );
+
+    isValid = false;
+
+  }
+
+  if (
+    image.value.trim() &&
+    !isValidProductUrl(image.value.trim())
+  ) {
+
+    setProductFieldError(
+      image,
+      "Ingresá una URL válida."
+    );
+
+    isValid = false;
+
+  }
+
+  if (type.value === "unit") {
+
+    if (!isPositivePrice(unitPrice.value)) {
+
+      setProductFieldError(
+        unitPrice,
+        "Ingresá un precio mayor a cero."
+      );
+
+      isValid = false;
+
+    }
+
+  } else {
+
+    if (!isPositivePrice(weightPrice.value)) {
+
+      setProductFieldError(
+        weightPrice,
+        "Ingresá un precio mayor a cero."
+      );
+
+      isValid = false;
+
+    }
+
+  }
+
+  return isValid;
+
+}
+
+function setProductFieldError(
+  field,
+  message
+) {
+
+  if (!field) return;
+
+  field.classList.add("is-invalid");
+
+  field.setAttribute(
+    "aria-invalid",
+    "true"
+  );
+
+  const label =
+    field.closest("label");
+
+  const error =
+    label
+      ? label.querySelector(
+          ".product-field-error"
+        )
+      : null;
+
+  if (error) {
+
+    error.textContent = message;
+
+  }
+
+}
+
+function clearProductFieldError(field) {
+
+  if (!field) return;
+
+  field.classList.remove("is-invalid");
+
+  field.removeAttribute(
+    "aria-invalid"
+  );
+
+  const label =
+    field.closest("label");
+
+  const error =
+    label
+      ? label.querySelector(
+          ".product-field-error"
+        )
+      : null;
+
+  if (error) {
+
+    error.textContent = "";
+
+  }
+
+}
+
+function isPositivePrice(value) {
+
+  if (
+    value === "" ||
+    value === null ||
+    value === undefined
+  ) {
+    return false;
+  }
+
+  const price = Number(value);
+
+  return (
+    Number.isFinite(price) &&
+    price > 0
+  );
+
+}
+
+function isValidProductUrl(value) {
+
+  try {
+
+    const url = new URL(value);
+
+    return (
+      url.protocol === "http:" ||
+      url.protocol === "https:"
+    );
+
+  } catch (error) {
+
+    return false;
+
+  }
 
 }
