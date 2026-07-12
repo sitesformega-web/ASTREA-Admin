@@ -381,10 +381,7 @@ function bindProductsEvents() {
 
   if (searchInput) {
 
-    searchInput.value =
-      ADMIN_STATE.productsSearch || "";
-
-    searchInput.addEventListener("input", event => {
+    searchInput.oninput = event => {
 
       ADMIN_STATE.productsSearch =
         event.target.value
@@ -393,10 +390,138 @@ function bindProductsEvents() {
 
       renderProductsView();
 
-    });
+    };
 
   }
 
+  document
+    .querySelectorAll("[data-expand-product]")
+    .forEach(card => {
+
+      card.onclick = () => {
+
+        const id =
+          card.dataset.expandProduct;
+
+        ADMIN_STATE.expandedProductId =
+
+          ADMIN_STATE.expandedProductId === id
+
+            ? null
+
+            : id;
+
+        renderProductsView();
+
+      };
+
+    });
+
+  document
+    .querySelectorAll("[data-save-product]")
+    .forEach(button => {
+
+      button.onclick = () =>
+
+        saveProduct(
+          button.dataset.saveProduct
+        );
+
+    });
+
+  document
+    .querySelectorAll("[data-toggle-product]")
+    .forEach(button => {
+
+      button.onclick = () => {
+
+        if (!confirm(
+          "¿Deseas cambiar el estado de este producto?"
+        )) return;
+
+        toggleProduct(
+          button.dataset.toggleProduct
+        );
+
+      };
+
+    });
+
+  initializeProductEditors();
+
+}
+function initializeProductEditors() {
+
+  ADMIN_STATE.products.forEach(product => {
+
+    const imageInput =
+      document.getElementById(
+        `product-image-${product.id}`
+      );
+
+    const preview =
+      document.getElementById(
+        `product-preview-${product.id}`
+      );
+
+    if (imageInput && preview) {
+
+      imageInput.oninput = () => {
+
+        const url =
+          imageInput.value.trim();
+
+        if (!url) {
+
+          preview.style.display = "none";
+
+          return;
+
+        }
+
+        preview.src = url;
+
+        preview.style.display = "";
+
+      };
+
+    }
+
+    const type =
+      document.getElementById(
+        `product-type-${product.id}`
+      );
+
+    const unit =
+      document.getElementById(
+        `unit-price-group-${product.id}`
+      );
+
+    const weight =
+      document.getElementById(
+        `weight-price-group-${product.id}`
+      );
+
+    if (type && unit && weight) {
+
+      type.onchange = () => {
+
+        const isUnit =
+          type.value === "unit";
+
+        unit.style.display =
+          isUnit ? "" : "none";
+
+        weight.style.display =
+          isUnit ? "none" : "";
+
+      };
+
+    }
+
+  });
+
+}
   document
     .querySelectorAll("[data-expand-product]")
     .forEach(button => {
