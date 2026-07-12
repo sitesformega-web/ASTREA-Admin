@@ -14,6 +14,7 @@ async function loadProducts() {
 
     renderProductsView();
      initializeProductsModule();
+     initializeProductEnhancements();
 
   } catch (error) {
 
@@ -675,5 +676,85 @@ async function createProduct() {
     );
 
   }
+
+}
+/* ==========================================================
+   Sprint 2.1 Enhancements
+   ========================================================== */
+
+function initializeProductEnhancements() {
+
+  initializeProductPreview();
+
+}
+
+function initializeProductPreview() {
+
+  // Preview del formulario Nuevo Producto
+
+  const newImage =
+    document.getElementById("new-product-image");
+
+  const newPreview =
+    document.getElementById("new-product-preview");
+
+  if (newImage && newPreview) {
+
+    newImage.oninput = () => {
+
+      const url = newImage.value.trim();
+
+      if (!url) {
+
+        newPreview.style.display = "none";
+
+        return;
+
+      }
+
+      newPreview.src = url;
+
+      newPreview.style.display = "";
+
+    };
+
+  }
+
+  // Preview de productos existentes
+
+  ADMIN_STATE.products.forEach(product => {
+
+    const input =
+      document.getElementById(
+        `product-image-${product.id}`
+      );
+
+    const preview =
+      document.getElementById(
+        `product-preview-${product.id}`
+      );
+
+    if (!input || !preview) return;
+
+    input.oninput = () => {
+
+      const url =
+        input.value.trim();
+
+      if (!url) {
+
+        preview.style.display = "none";
+
+        return;
+
+      }
+
+      preview.src = url;
+
+      preview.style.display = "";
+
+    };
+
+  });
 
 }
