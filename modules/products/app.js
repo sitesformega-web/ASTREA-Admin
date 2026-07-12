@@ -688,6 +688,8 @@ function initializeProductEnhancements() {
 
   initializeProductPreview();
 
+  initializeProductTypeToggle();
+
 }
 
 function initializeProductPreview() {
@@ -756,6 +758,81 @@ function initializeProductPreview() {
       preview.style.display = "";
 
     };
+
+  });
+
+}
+function initializeProductTypeToggle() {
+
+  // Nuevo producto
+
+  const newType =
+    document.getElementById("new-product-type");
+
+  const newUnit =
+    document.getElementById("new-unit-price-group");
+
+  const newWeight =
+    document.getElementById("new-weight-price-group");
+
+  if (newType && newUnit && newWeight) {
+
+    const updateNewGroups = () => {
+
+      const isUnit =
+        newType.value === "unit";
+
+      newUnit.style.display =
+        isUnit ? "" : "none";
+
+      newWeight.style.display =
+        isUnit ? "none" : "";
+
+    };
+
+    updateNewGroups();
+
+    newType.onchange = updateNewGroups;
+
+  }
+
+  // Productos existentes
+
+  ADMIN_STATE.products.forEach(product => {
+
+    const type =
+      document.getElementById(
+        `product-type-${product.id}`
+      );
+
+    const unit =
+      document.getElementById(
+        `unit-price-group-${product.id}`
+      );
+
+    const weight =
+      document.getElementById(
+        `weight-price-group-${product.id}`
+      );
+
+    if (!type || !unit || !weight) return;
+
+    const updateGroups = () => {
+
+      const isUnit =
+        type.value === "unit";
+
+      unit.style.display =
+        isUnit ? "" : "none";
+
+      weight.style.display =
+        isUnit ? "none" : "";
+
+    };
+
+    updateGroups();
+
+    type.onchange = updateGroups;
 
   });
 
