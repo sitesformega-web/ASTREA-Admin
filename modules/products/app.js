@@ -149,49 +149,76 @@ function renderProductCard(product) {
 
 function renderProductEditor(product) {
 
+  const isUnit =
+    product.tipoVenta === "unit";
+
   return `
 
     <div class="product-detail">
 
       <label>
 
-        Nombre
+        Nombre *
 
         <input
           id="product-name-${product.id}"
           value="${product.nombre || ""}"
+          maxlength="120"
+          autocomplete="off"
         >
+
+        <small
+          class="product-field-error"
+          id="product-name-error-${product.id}"
+        ></small>
 
       </label>
 
       <label>
 
-        Imagen
+        Imagen (URL)
 
         <input
           id="product-image-${product.id}"
+          type="url"
           value="${product.imagen || ""}"
+          placeholder="https://..."
+          autocomplete="off"
         >
+
+        <small
+          class="product-field-error"
+          id="product-image-error-${product.id}"
+        ></small>
 
       </label>
 
       <img
+        id="product-preview-${product.id}"
         class="product-preview"
         src="${product.imagen || ""}"
+        alt="Vista previa"
         onerror="this.style.display='none';"
       >
 
       <label>
 
-        Categoría
+        Categoría *
 
         <input
           id="product-category-${product.id}"
           value="${product.categoria || ""}"
+          autocomplete="off"
         >
 
+        <small
+          class="product-field-error"
+          id="product-category-error-${product.id}"
+        ></small>
+
       </label>
-            <label>
+
+      <label>
 
         Tipo de venta
 
@@ -201,14 +228,14 @@ function renderProductEditor(product) {
 
           <option
             value="unit"
-            ${product.tipoVenta === "unit" ? "selected" : ""}
+            ${isUnit ? "selected" : ""}
           >
             Por unidad
           </option>
 
           <option
             value="weight"
-            ${product.tipoVenta === "weight" ? "selected" : ""}
+            ${!isUnit ? "selected" : ""}
           >
             Por peso
           </option>
@@ -217,29 +244,61 @@ function renderProductEditor(product) {
 
       </label>
 
-      <label>
+      <div
+        id="unit-price-group-${product.id}"
+        class="product-price-group"
+        style="${isUnit ? "" : "display:none;"}"
+      >
 
-        Precio por unidad
+        <label>
 
-        <input
-          id="product-unit-price-${product.id}"
-          type="number"
-          value="${product.precioUnidad || ""}"
-        >
+          Precio por unidad *
 
-      </label>
+          <input
+            id="product-unit-price-${product.id}"
+            type="number"
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+            value="${product.precioUnidad || ""}"
+          >
 
-      <label>
+          <small
+            class="product-field-error"
+            id="product-unit-error-${product.id}"
+          ></small>
 
-        Precio por kilo
+        </label>
 
-        <input
-          id="product-weight-price-${product.id}"
-          type="number"
-          value="${product.precioKg || ""}"
-        >
+      </div>
 
-      </label>
+      <div
+        id="weight-price-group-${product.id}"
+        class="product-price-group"
+        style="${isUnit ? "display:none;" : ""}"
+      >
+
+        <label>
+
+          Precio por kilo *
+
+          <input
+            id="product-weight-price-${product.id}"
+            type="number"
+            min="0"
+            step="0.01"
+            inputmode="decimal"
+            value="${product.precioKg || ""}"
+          >
+
+          <small
+            class="product-field-error"
+            id="product-weight-error-${product.id}"
+          ></small>
+
+        </label>
+
+      </div>
 
       <details class="product-more">
 
@@ -256,6 +315,9 @@ function renderProductEditor(product) {
           <input
             id="product-stock-${product.id}"
             type="number"
+            min="0"
+            step="1"
+            inputmode="numeric"
             value="${product.stock || ""}"
           >
 
@@ -268,6 +330,9 @@ function renderProductEditor(product) {
           <input
             id="product-order-${product.id}"
             type="number"
+            min="1"
+            step="1"
+            inputmode="numeric"
             value="${product.orden || 999}"
           >
 
@@ -280,6 +345,7 @@ function renderProductEditor(product) {
         <button
           class="ui-button primary"
           data-save-product="${product.id}"
+          type="button"
         >
 
           Guardar cambios
@@ -289,6 +355,7 @@ function renderProductEditor(product) {
         <button
           class="ui-button secondary"
           data-toggle-product="${product.id}"
+          type="button"
         >
 
           ${product.activo === true ||
@@ -307,7 +374,6 @@ function renderProductEditor(product) {
   `;
 
 }
-
 function bindProductsEvents() {
 
   const searchInput =
