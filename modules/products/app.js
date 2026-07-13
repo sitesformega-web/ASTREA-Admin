@@ -462,30 +462,51 @@ async function saveProduct(productId) {
 
 async function toggleProduct(productId) {
 
+  const product =
+    ADMIN_STATE.products.find(
+      item => item.id === productId
+    );
+
+  if (!product) return;
+
+  const isActive =
+    product.activo === true ||
+    product.activo === "TRUE";
+
+  const confirmed = window.confirm(
+
+    isActive
+
+      ? "¿Deseas desactivar este producto?\n\nDejará de aparecer en la vitrina pública."
+
+      : "¿Deseas activar este producto?\n\nVolverá a estar disponible para los clientes."
+
+  );
+
+  if (!confirmed) {
+
+    return;
+
+  }
+
   try {
 
     await adminToggleProduct(productId);
 
-    const product = ADMIN_STATE.products.find(
-      item => item.id === productId
-    );
-
-    if (product) {
-
-      product.activo =
-        !(product.activo === true ||
-          product.activo === "TRUE");
-
-    }
+    product.activo = !isActive;
 
     showToast(
-      "Estado actualizado.",
+      isActive
+        ? "Producto desactivado."
+        : "Producto activado.",
       "success"
     );
 
     renderProductsView();
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
 
