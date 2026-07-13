@@ -633,7 +633,9 @@ function bindCreateProductEvents() {
 
 async function createProduct() {
 
-  if (!validateNewProductForm()) {
+  console.log("createProduct ejecutado");
+  
+   if (!validateNewProductForm()) {
 
     showToast(
       "Revisá los campos marcados.",
