@@ -304,5 +304,212 @@
         transform:none;
 
     }
+    
+
+}
+/* ==========================================================
+   PRODUCTS v1.0
+   UX Freeze
+   ========================================================== */
+
+
+/* ---------- Preview ---------- */
+
+.product-preview{
+
+    width:100%;
+
+    height:180px;
+
+    margin-top:12px;
+
+    border:1px solid var(--ui-border);
+
+    border-radius:12px;
+
+    background:var(--ui-surface);
+
+    object-fit:contain;
+
+    padding:12px;
+
+    transition:
+        opacity .25s ease,
+        transform .25s ease;
+
+}
+
+.product-preview:hover{
+
+    transform:scale(1.015);
+
+}
+
+
+/* Placeholder cuando no existe imagen */
+
+.product-preview[src=""]{
+
+    display:none;
+
+}
+
+
+/* ---------- Card ---------- */
+
+.product-detail{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:14px;
+
+}
+
+.product-detail label{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:6px;
+
+}
+
+
+/* ---------- Más opciones ---------- */
+
+.product-more{
+
+    border:1px solid var(--ui-border);
+
+    border-radius:10px;
+
+    padding:10px 14px;
+
+    background:var(--ui-surface);
+
+}
+
+.product-more summary{
+
+    cursor:pointer;
+
+    font-weight:600;
+
+}
+
+
+/* ---------- Acciones ---------- */
+
+.product-actions{
+
+    display:flex;
+
+    gap:10px;
+
+    margin-top:12px;
+
+}
+
+.product-actions .ui-button{
+
+    flex:1;
+
+}
+
+
+/* ---------- Loading ---------- */
+
+.ui-button.is-loading{
+
+    opacity:.80;
+
+    cursor:wait;
+
+    pointer-events:none;
+
+    position:relative;
+
+}
+
+
+/* Spinner */
+
+.ui-button.is-loading::before{
+
+    content:"";
+
+    width:14px;
+
+    height:14px;
+
+    margin-right:8px;
+
+    border-radius:50%;
+
+    border:2px solid rgba(255,255,255,.35);
+
+    border-top-color:#fff;
+
+    display:inline-block;
+
+    vertical-align:middle;
+
+    animation:
+        astreaSpin .8s linear infinite;
+
+}
+
+@keyframes astreaSpin{
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+
+/* ---------- Estados ---------- */
+
+.product-detail input:disabled,
+.product-detail select:disabled{
+
+    opacity:.65;
+
+}
+
+
+/* ---------- Errores ---------- */
+
+.product-field-error{
+
+    min-height:18px;
+
+    font-size:.78rem;
+
+    color:var(--danger);
+
+}
+
+
+/* ---------- Responsive ---------- */
+
+@media (max-width:640px){
+
+    .product-actions{
+
+        flex-direction:column;
+
+    }
 
 }
