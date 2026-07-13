@@ -390,21 +390,38 @@ function bindProductsEvents() {
 }
 async function saveProduct(productId) {
 
+  const button =
+    document.querySelector(
+      `[data-save-product="${productId}"]`
+    );
+
+  setButtonLoading(
+    button,
+    "Guardando..."
+  );
+
   try {
 
-    const product = readProductForm(productId);
+    const product =
+      readProductForm(productId);
 
     await adminUpdateProduct(product);
 
-    const index = ADMIN_STATE.products.findIndex(
-      item => item.id === product.id
-    );
+    const index =
+      ADMIN_STATE.products.findIndex(
+        item => item.id === product.id
+      );
 
     if (index >= 0) {
+
       ADMIN_STATE.products[index] = {
+
         ...ADMIN_STATE.products[index],
+
         ...product
+
       };
+
     }
 
     showToast(
@@ -414,7 +431,9 @@ async function saveProduct(productId) {
 
     renderProductsView();
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
 
@@ -422,6 +441,12 @@ async function saveProduct(productId) {
       "No se pudo actualizar el producto.",
       "error"
     );
+
+  }
+
+  finally {
+
+    clearButtonLoading(button);
 
   }
 
@@ -600,6 +625,16 @@ function bindCreateProductEvents() {
 
 async function createProduct() {
 
+  const button =
+    document.getElementById(
+      "saveNewProduct"
+    );
+
+  setButtonLoading(
+    button,
+    "Creando..."
+  );
+
   try {
 
     const product = {
@@ -668,7 +703,9 @@ async function createProduct() {
       "success"
     );
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     console.error(error);
 
@@ -676,6 +713,12 @@ async function createProduct() {
       "No se pudo crear el producto.",
       "error"
     );
+
+  }
+
+  finally {
+
+    clearButtonLoading(button);
 
   }
 
