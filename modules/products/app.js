@@ -321,14 +321,16 @@ function bindProductsEvents() {
 
     searchInput.addEventListener("input", event => {
 
-      ADMIN_STATE.productsSearch =
-        event.target.value
-          .trim()
-          .toLowerCase();
+  ADMIN_STATE.productsSearch =
+    event.target.value
+      .trim()
+      .toLowerCase();
 
-      renderProductsView();
+  ADMIN_STATE.creatingProduct = false;
 
-    });
+  renderProductsView();
+
+});
 
   }
 
@@ -390,6 +392,19 @@ function bindProductsEvents() {
 }
 async function saveProduct(productId) {
 
+  if (
+    !validateExistingProductForm(productId)
+  ) {
+
+    showToast(
+      "Revisá los campos marcados.",
+      "error"
+    );
+
+    return;
+
+  }
+
   const button =
     document.querySelector(
       `[data-save-product="${productId}"]`
@@ -415,11 +430,8 @@ async function saveProduct(productId) {
     if (index >= 0) {
 
       ADMIN_STATE.products[index] = {
-
         ...ADMIN_STATE.products[index],
-
         ...product
-
       };
 
     }
@@ -431,9 +443,7 @@ async function saveProduct(productId) {
 
     renderProductsView();
 
-  }
-
-  catch (error) {
+  } catch (error) {
 
     console.error(error);
 
@@ -442,9 +452,7 @@ async function saveProduct(productId) {
       "error"
     );
 
-  }
-
-  finally {
+  } finally {
 
     clearButtonLoading(button);
 
@@ -625,6 +633,17 @@ function bindCreateProductEvents() {
 
 async function createProduct() {
 
+  if (!validateNewProductForm()) {
+
+    showToast(
+      "Revisá los campos marcados.",
+      "error"
+    );
+
+    return;
+
+  }
+
   const button =
     document.getElementById(
       "saveNewProduct"
@@ -641,52 +660,68 @@ async function createProduct() {
 
       nombre:
         document
-          .getElementById("new-product-name")
+          .getElementById(
+            "new-product-name"
+          )
           .value
           .trim(),
 
       categoria:
         document
-          .getElementById("new-product-category")
+          .getElementById(
+            "new-product-category"
+          )
           .value
           .trim(),
 
       tipoVenta:
         document
-          .getElementById("new-product-type")
+          .getElementById(
+            "new-product-type"
+          )
           .value,
 
       precioUnidad:
         Number(
           document
-            .getElementById("new-product-unit")
+            .getElementById(
+              "new-product-unit"
+            )
             .value
         ) || "",
 
       precioKg:
         Number(
           document
-            .getElementById("new-product-weight")
+            .getElementById(
+              "new-product-weight"
+            )
             .value
         ) || "",
 
       stock:
         Number(
           document
-            .getElementById("new-product-stock")
+            .getElementById(
+              "new-product-stock"
+            )
             .value
         ) || "",
 
       imagen:
         document
-          .getElementById("new-product-image")
+          .getElementById(
+            "new-product-image"
+          )
           .value
           .trim(),
 
       orden:
         Number(
           document
-            .getElementById("new-product-order")
+            .getElementById(
+              "new-product-order"
+            )
             .value
         ) || 999
 
@@ -703,9 +738,7 @@ async function createProduct() {
       "success"
     );
 
-  }
-
-  catch (error) {
+  } catch (error) {
 
     console.error(error);
 
@@ -714,9 +747,7 @@ async function createProduct() {
       "error"
     );
 
-  }
-
-  finally {
+  } finally {
 
     clearButtonLoading(button);
 
@@ -912,74 +943,8 @@ function initializeProductValidation() {
     .productValidationBound = "true";
 
   /*
-   * Usamos captura para validar antes de que se ejecuten
-   * createProduct() o saveProduct().
-   */
-  document.addEventListener(
-    "click",
-    event => {
-
-      const createButton =
-        event.target.closest("#saveNewProduct");
-
-      if (createButton) {
-
-        const isValid =
-          validateNewProductForm();
-
-        if (!isValid) {
-
-          event.preventDefault();
-
-          event.stopImmediatePropagation();
-
-          showToast(
-            "Revisá los campos marcados.",
-            "error"
-          );
-
-        }
-
-        return;
-
-      }
-
-      const saveButton =
-        event.target.closest(
-          "[data-save-product]"
-        );
-
-      if (saveButton) {
-
-        const productId =
-          saveButton.dataset.saveProduct;
-
-        const isValid =
-          validateExistingProductForm(
-            productId
-          );
-
-        if (!isValid) {
-
-          event.preventDefault();
-
-          event.stopImmediatePropagation();
-
-          showToast(
-            "Revisá los campos marcados.",
-            "error"
-          );
-
-        }
-
-      }
-
-    },
-    true
-  );
-
-  /*
-   * Limpia el error mientras el usuario corrige el campo.
+   * Limpia el error mientras el usuario
+   * corrige un campo.
    */
   document.addEventListener(
     "input",
