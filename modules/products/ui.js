@@ -40,29 +40,23 @@ function renderProductsModule(container) {
 }
 
 function renderProductsHeader() {
-  return `
-    <div class="products-header">
 
-      <div>
+    return renderModuleHeader({
 
-        <h2>🛒 Productos</h2>
+        title: "🛒 Productos",
 
-        <p>
-          Administrá el catálogo de tu negocio.
-        </p>
+        subtitle: "Administrá el catálogo de tu negocio.",
 
-      </div>
+        action: {
 
-      <button
-        id="newProductBtn"
-        class="ui-button primary"
-        type="button"
-      >
-        + Nuevo producto
-      </button>
+            id: "newProductBtn",
 
-    </div>
-  `;
+            label: "+ Nuevo producto"
+
+        }
+
+    });
+
 }
 
 function renderProductsToolbar() {
