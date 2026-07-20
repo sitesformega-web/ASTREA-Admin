@@ -410,7 +410,7 @@ async function saveProduct(productId) {
       `[data-save-product="${productId}"]`
     );
 
-  setButtonLoading(
+  setLoadingButton(
     button,
     "Guardando..."
   );
@@ -454,7 +454,7 @@ async function saveProduct(productId) {
 
   } finally {
 
-    clearButtonLoading(button);
+    clearLoadingButton(button);
 
   }
 
@@ -672,7 +672,7 @@ async function createProduct() {
       "saveNewProduct"
     );
 
-  setButtonLoading(
+  setLoadingButton(
     button,
     "Creando..."
   );
@@ -772,7 +772,7 @@ async function createProduct() {
 
   } finally {
 
-    clearButtonLoading(button);
+    clearLoadingButton(button);
 
   }
 
@@ -1300,46 +1300,6 @@ function isValidProductUrl(value) {
   } catch (error) {
 
     return false;
-
-  }
-
-}
-/* ==========================================================
-   Enhancement 004
-   Loading Helpers
-   ========================================================== */
-
-function setButtonLoading(button, text = "Procesando...") {
-
-  if (!button) return;
-
-  if (!button.dataset.originalText) {
-
-    button.dataset.originalText =
-      button.innerHTML;
-
-  }
-
-  button.disabled = true;
-
-  button.classList.add("is-loading");
-
-  button.innerHTML = text;
-
-}
-
-function clearButtonLoading(button) {
-
-  if (!button) return;
-
-  button.disabled = false;
-
-  button.classList.remove("is-loading");
-
-  if (button.dataset.originalText) {
-
-    button.innerHTML =
-      button.dataset.originalText;
 
   }
 
