@@ -60,18 +60,15 @@ function renderProductsHeader() {
 }
 
 function renderProductsToolbar() {
-  return `
-    <div class="products-search">
 
-      <input
-        id="productsSearch"
-        type="search"
-        placeholder="Buscar producto..."
-        autocomplete="off"
-      >
+    return renderSearchToolbar({
 
-    </div>
-  `;
+        id: "productsSearch",
+
+        placeholder: "Buscar producto..."
+
+    });
+
 }
 function renderProductCreator() {
 
