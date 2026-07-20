@@ -23,29 +23,44 @@ function confirmDialog({
 
     closeConfirmDialog();
 
-    const overlay = document.createElement("div");
+    const overlay =
+        document.createElement("div");
 
-    overlay.className = "admin-confirm-overlay";
+    overlay.className =
+        "admin-confirm-overlay";
 
     overlay.innerHTML = `
 
-        <div class="admin-confirm-dialog">
+        <div
+            class="admin-confirm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirmDialogTitle">
 
             <div class="admin-confirm-header">
 
-                <h3>${title}</h3>
+                <h3 id="confirmDialogTitle">
+
+                    ${title}
+
+                </h3>
 
             </div>
 
             <div class="admin-confirm-body">
 
-                <p>${message}</p>
+                <p>
+
+                    ${message.replace(/\n/g, "<br>")}
+
+                </p>
 
             </div>
 
             <div class="admin-confirm-footer">
 
                 <button
+                    type="button"
                     class="ui-button ui-button-secondary"
                     id="confirmCancel">
 
@@ -54,6 +69,7 @@ function confirmDialog({
                 </button>
 
                 <button
+                    type="button"
                     class="ui-button ui-button-${confirmStyle}"
                     id="confirmAccept">
 
@@ -69,29 +85,47 @@ function confirmDialog({
 
     document.body.appendChild(overlay);
 
-    overlay
-        .querySelector("#confirmCancel")
-        .addEventListener("click", closeConfirmDialog);
+    const cancelButton =
+        overlay.querySelector("#confirmCancel");
 
-    overlay
-        .querySelector("#confirmAccept")
-        .addEventListener("click", () => {
+    const confirmButton =
+        overlay.querySelector("#confirmAccept");
 
-            closeConfirmDialog();
+    cancelButton.addEventListener(
+        "click",
+        closeConfirmDialog
+    );
 
-            onConfirm();
-
-        });
-
-    overlay.addEventListener("click", (event) => {
-
-        if (event.target === overlay) {
+    confirmButton.addEventListener(
+        "click",
+        async () => {
 
             closeConfirmDialog();
+
+            await onConfirm();
 
         }
+    );
 
-    });
+    overlay.addEventListener(
+        "click",
+        event => {
+
+            if (event.target === overlay) {
+
+                closeConfirmDialog();
+
+            }
+
+        }
+    );
+
+    document.addEventListener(
+        "keydown",
+        handleConfirmDialogKeydown
+    );
+
+    confirmButton.focus();
 
 }
 
@@ -100,5 +134,20 @@ function closeConfirmDialog() {
     document
         .querySelectorAll(".admin-confirm-overlay")
         .forEach(dialog => dialog.remove());
+
+    document.removeEventListener(
+        "keydown",
+        handleConfirmDialogKeydown
+    );
+
+}
+
+function handleConfirmDialogKeydown(event) {
+
+    if (event.key === "Escape") {
+
+        closeConfirmDialog();
+
+    }
 
 }
