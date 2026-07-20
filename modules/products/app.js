@@ -473,49 +473,57 @@ async function toggleProduct(productId) {
     product.activo === true ||
     product.activo === "TRUE";
 
-  const confirmed = window.confirm(
+  confirmDialog({
 
-    isActive
+    title: isActive
+      ? "Desactivar producto"
+      : "Activar producto",
 
-      ? "¿Deseas desactivar este producto?\n\nDejará de aparecer en la vitrina pública."
+    message: isActive
+      ? "El producto dejará de aparecer en la vitrina pública.\n\nPodrás volver a activarlo cuando quieras."
+      : "El producto volverá a estar disponible para los clientes.",
 
-      : "¿Deseas activar este producto?\n\nVolverá a estar disponible para los clientes."
+    confirmText: isActive
+      ? "Desactivar"
+      : "Activar",
 
-  );
+    confirmStyle: isActive
+      ? "danger"
+      : "primary",
 
-  if (!confirmed) {
+    onConfirm: async () => {
 
-    return;
+      try {
 
-  }
+        await adminToggleProduct(productId);
 
-  try {
+        product.activo = !isActive;
 
-    await adminToggleProduct(productId);
+        showToast(
+          isActive
+            ? "Producto desactivado."
+            : "Producto activado.",
+          "success"
+        );
 
-    product.activo = !isActive;
+        renderProductsView();
 
-    showToast(
-      isActive
-        ? "Producto desactivado."
-        : "Producto activado.",
-      "success"
-    );
+      }
 
-    renderProductsView();
+      catch (error) {
 
-  }
+        console.error(error);
 
-  catch (error) {
+        showToast(
+          "No se pudo actualizar el estado.",
+          "error"
+        );
 
-    console.error(error);
+      }
 
-    showToast(
-      "No se pudo actualizar el estado.",
-      "error"
-    );
+    }
 
-  }
+  });
 
 }
 
