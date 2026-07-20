@@ -61,7 +61,7 @@ function confirmDialog({
 
                 <button
                     type="button"
-                    class="ui-button ui-button-secondary"
+                    class="ui-button secondary"
                     id="confirmCancel">
 
                     ${cancelText}
@@ -70,7 +70,7 @@ function confirmDialog({
 
                 <button
                     type="button"
-                    class="ui-button ui-button-${confirmStyle}"
+                    class="ui-button ${confirmStyle}"
                     id="confirmAccept">
 
                     ${confirmText}
