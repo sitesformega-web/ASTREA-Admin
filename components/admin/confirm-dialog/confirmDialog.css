@@ -1,0 +1,102 @@
+/* ==========================================================
+   ASTREA™ Design System
+   Admin Components
+
+   Confirm Dialog
+   ========================================================== */
+
+.admin-confirm-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:24px;
+
+    z-index:9999;
+
+    animation:fadeIn .18s ease;
+
+}
+
+.admin-confirm-dialog{
+
+    width:100%;
+
+    max-width:420px;
+
+    background:var(--surface);
+
+    border-radius:var(--radius-xl);
+
+    box-shadow:var(--shadow-xl);
+
+    overflow:hidden;
+
+}
+
+.admin-confirm-header{
+
+    padding:20px 24px 12px;
+
+}
+
+.admin-confirm-header h3{
+
+    margin:0;
+
+}
+
+.admin-confirm-body{
+
+    padding:0 24px 24px;
+
+}
+
+.admin-confirm-body p{
+
+    margin:0;
+
+    color:var(--text-secondary);
+
+    line-height:1.5;
+
+}
+
+.admin-confirm-footer{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:12px;
+
+    padding:20px 24px;
+
+    border-top:1px solid var(--border);
+
+}
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+    }
+
+    to{
+
+        opacity:1;
+
+    }
+
+}
