@@ -5,15 +5,21 @@
    Loading Button
    ========================================================== */
 
-function setLoadingButton(button, label = "Procesando...") {
+function setLoadingButton(button, text = "Procesando...") {
 
     if (!button) return;
 
-    button.dataset.originalLabel = button.innerHTML;
+    if (!button.dataset.originalText) {
+
+        button.dataset.originalText = button.innerHTML;
+
+    }
 
     button.disabled = true;
 
-    button.innerHTML = label;
+    button.classList.add("is-loading");
+
+    button.innerHTML = text;
 
 }
 
@@ -23,6 +29,12 @@ function clearLoadingButton(button) {
 
     button.disabled = false;
 
-    button.innerHTML = button.dataset.originalLabel || "";
+    button.classList.remove("is-loading");
+
+    if (button.dataset.originalText) {
+
+        button.innerHTML = button.dataset.originalText;
+
+    }
 
 }
