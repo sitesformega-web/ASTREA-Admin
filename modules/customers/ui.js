@@ -1,11 +1,78 @@
+/**
+ * ============================================================
+ * ASTREA™ Commerce
+ * Customers Module
+ * UI
+ * ============================================================
+ */
+
+/**
+ * Renderiza el módulo Customers.
+ *
+ * @param {HTMLElement} container
+ */
 function renderCustomersModule(container) {
-  container.innerHTML = `
-    <section class="admin-card">
 
-      <h2>👥 Clientes</h2>
+    if (!container) return;
 
-      ${renderEmptyState("Módulo en construcción.")}
+    container.innerHTML = `
+        <section class="customers-module">
 
-    </section>
-  `;
+            ${renderCustomersHeader()}
+
+            ${renderCustomersToolbar()}
+
+            <div
+                id="customersView"
+                class="customers-view"
+            >
+                ${renderCustomersEmptyState()}
+            </div>
+
+        </section>
+    `;
+
+}
+
+/**
+ * Header del módulo.
+ *
+ * @returns {string}
+ */
+function renderCustomersHeader() {
+
+    return renderModuleHeader({
+        title: "Clientes",
+        subtitle: "Administrá la cartera de clientes."
+    });
+
+}
+
+/**
+ * Barra de búsqueda.
+ *
+ * @returns {string}
+ */
+function renderCustomersToolbar() {
+
+    return renderSearchToolbar({
+        placeholder: "Buscar cliente..."
+    });
+
+}
+
+/**
+ * Estado vacío inicial.
+ *
+ * @returns {string}
+ */
+function renderCustomersEmptyState() {
+
+    return renderEmptyState({
+        title: "No hay clientes registrados.",
+        description: "Comenzá creando tu primer cliente.",
+        buttonLabel: "Nuevo cliente",
+        buttonId: "btnNewCustomer"
+    });
+
 }
