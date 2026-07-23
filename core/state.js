@@ -17,6 +17,10 @@ const ADMIN_STATE = {
   expandedProductId: null,
   creatingProduct: false,
 
+  customersSearch: "",
+  selectedCustomerId: null,
+  creatingCustomer: false,
+
   loading: false
 };
 
@@ -44,4 +48,25 @@ function setExpandedProduct(productId) {
 
 function setCreatingProduct(value) {
   ADMIN_STATE.creatingProduct = Boolean(value);
+}
+
+/* ==========================================================================
+   Customers
+   ========================================================================== */
+
+function setCustomers(customers) {
+  ADMIN_STATE.customers = Array.isArray(customers) ? customers : [];
+}
+
+function setCustomersSearch(value) {
+  ADMIN_STATE.customersSearch = value || "";
+}
+
+function setSelectedCustomer(customerId) {
+  ADMIN_STATE.selectedCustomerId =
+    ADMIN_STATE.selectedCustomerId === customerId ? null : customerId;
+}
+
+function setCreatingCustomer(value) {
+  ADMIN_STATE.creatingCustomer = Boolean(value);
 }
