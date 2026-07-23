@@ -40,6 +40,7 @@ function renderAdminMain() {
 
   if (ADMIN_STATE.currentModule === "customers") {
     renderCustomersModule(main);
+    loadCustomers();
     return;
   }
 
