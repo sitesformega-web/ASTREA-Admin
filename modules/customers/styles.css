@@ -1,0 +1,91 @@
+/**
+ * ============================================================
+ * ASTREA™ Commerce
+ * Customers Module
+ * Styles
+ * ============================================================
+ */
+
+.customers-module{
+
+    display:flex;
+    flex-direction:column;
+    gap:var(--space-lg);
+
+}
+
+.customers-view{
+
+    display:flex;
+    flex-direction:column;
+    gap:var(--space-md);
+
+    width:100%;
+
+    min-height:320px;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Customer List
+|--------------------------------------------------------------------------
+*/
+
+.customers-list{
+
+    display:flex;
+    flex-direction:column;
+    gap:var(--space-md);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Customer Card
+|--------------------------------------------------------------------------
+*/
+
+.customer-card{
+
+    width:100%;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Empty State
+|--------------------------------------------------------------------------
+*/
+
+.customers-empty{
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    min-height:320px;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width:768px){
+
+    .customers-module{
+
+        gap:var(--space-md);
+
+    }
+
+    .customers-view{
+
+        min-height:240px;
+
+    }
+
+}
