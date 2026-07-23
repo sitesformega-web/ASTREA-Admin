@@ -50,28 +50,29 @@ function renderEmptyState(config) {
     } = config;
 
     return `
-        <div class="empty-state">
+    <div class="empty-state">
 
-            ${title ? `
-                <h3 class="empty-state-title">
-                    ${title}
-                </h3>
-            ` : ""}
+        ${title ? `
+            <h3 class="empty-state-title">
+                ${title}
+            </h3>
+        ` : ""}
 
-            ${description ? `
-                <p class="empty-state-description">
-                    ${description}
-                </p>
-            ` : ""}
+        ${description ? `
+            <p class="empty-state-description">
+                ${description}
+            </p>
+        ` : ""}
 
-            ${buttonLabel ? `
-                <button
-                    id="${buttonId}"
-                    class="btn btn-primary"
-                >
-                    ${buttonLabel}
-                </button>
-            ` : ""}
+        ${
+            buttonLabel
+                ? renderButton({
+                    label: buttonLabel,
+                    id: buttonId,
+                    variant: "primary"
+                })
+                : ""
+        }
 
         </div>
     `;
