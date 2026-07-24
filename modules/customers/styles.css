@@ -92,3 +92,64 @@
 
   margin-top: var(--space-5);
 }
+
+.customer-record-actions > * {
+  flex: 1 1 180px;
+}
+
+@media (min-width: 768px) {
+
+  .customer-record-actions {
+    flex-wrap: nowrap;
+  }
+
+  .customer-record-actions > * {
+    flex: 0 0 auto;
+  }
+
+}
+/* ============================================================
+   Category
+   ============================================================ */
+
+.customer-record-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  color: var(--muted);
+}
+
+.customer-record-bullet {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: var(--border);
+}
+
+.customer-record-category.frequent .customer-record-bullet {
+  background: var(--success);
+}
+
+.customer-record-category.occasional .customer-record-bullet {
+  background: var(--warning);
+}
+
+.customer-record-category.inactive .customer-record-bullet {
+  background: var(--muted);
+}
+
+/* ============================================================
+   Expanded
+   ============================================================ */
+
+.customer-record-expanded[hidden] {
+  display: none;
+}
