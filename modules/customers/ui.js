@@ -54,7 +54,7 @@ function renderCustomersToolbar() {
 }
 
 /**
- * Renderiza el listado de clientes.
+ * Renderiza el listado.
  *
  * @param {Array} customers
  * @returns {string}
@@ -68,7 +68,7 @@ function renderCustomersList(customers) {
 }
 
 /**
- * Renderiza una tarjeta de cliente.
+ * Renderiza una tarjeta.
  *
  * @param {Object} customer
  * @returns {string}
@@ -80,19 +80,33 @@ function renderCustomerCard(customer) {
       data-customer-id="${customer.id}"
     >
 
-      <div class="customer-card-header">
+      <header class="customer-card-header">
 
-        <div class="customer-card-identity">
+        <button
+          class="customer-card-toggle"
+          type="button"
+          aria-label="Expandir cliente"
+        >
+          ▼
+        </button>
 
-          <h3 class="customer-card-name">
-            ${customer.name}
-          </h3>
+        <div class="customer-card-body">
+
+          <div class="customer-card-title">
+
+            <h3 class="customer-card-name">
+              ${customer.name}
+            </h3>
+
+            ${renderCustomerStatus(customer.active)}
+
+          </div>
 
           ${
-            customer.legalName
+            customer.phone
               ? `
-                <p class="customer-card-legal-name">
-                  ${customer.legalName}
+                <p class="customer-card-phone">
+                  📱 ${customer.phone}
                 </p>
               `
               : ""
@@ -100,77 +114,36 @@ function renderCustomerCard(customer) {
 
         </div>
 
-        ${renderCustomerStatus(customer.active)}
+      </header>
 
-      </div>
+      <footer class="customer-card-actions">
 
-      <div class="customer-card-details">
+        <button
+          class="customer-action"
+          type="button"
+          data-action="whatsapp"
+        >
+          💬 WhatsApp
+        </button>
 
-        ${
-          customer.phone
-            ? renderCustomerDetail("Teléfono", customer.phone)
-            : ""
-        }
+        <button
+          class="customer-action"
+          type="button"
+          data-action="edit"
+        >
+          ✏ Editar
+        </button>
 
-        ${
-          customer.email
-            ? renderCustomerDetail("Email", customer.email)
-            : ""
-        }
+      </footer>
 
-        ${
-          customer.taxId
-            ? renderCustomerDetail("RUC", customer.taxId)
-            : ""
-        }
-
-        ${
-          customer.address
-            ? renderCustomerDetail("Dirección", customer.address)
-            : ""
-        }
-
-      </div>
-
-      ${
-        customer.notes
-          ? `
-            <p class="customer-card-notes">
-              ${customer.notes}
-            </p>
-          `
-          : ""
-      }
+      <div class="customer-card-content"></div>
 
     </article>
   `;
 }
 
 /**
- * Renderiza un dato individual del cliente.
- *
- * @param {string} label
- * @param {string} value
- * @returns {string}
- */
-function renderCustomerDetail(label, value) {
-  return `
-    <div class="customer-detail">
-
-      <span class="customer-detail-label">
-        ${label}
-      </span>
-
-      <span class="customer-detail-value">
-        ${value}
-      </span>
-
-    </div>
-  `;
-}
-
-/**
- * Renderiza el estado del cliente.
+ * Estado comercial.
  *
  * @param {boolean} active
  * @returns {string}
@@ -178,13 +151,13 @@ function renderCustomerDetail(label, value) {
 function renderCustomerStatus(active) {
   return `
     <span class="customer-status ${active ? "is-active" : "is-inactive"}">
-      ${active ? "Activo" : "Inactivo"}
+      ${active ? "Frecuente" : "Ocasional"}
     </span>
   `;
 }
 
 /**
- * Renderiza el estado vacío.
+ * Estado vacío.
  *
  * @returns {string}
  */
