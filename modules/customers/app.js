@@ -103,11 +103,11 @@ function bindCustomerRecordEvents() {
 
         if (!card) return;
 
-        const expanded = card.querySelector(".customer-record-expanded");
+        const expanded = card.querySelector(".ui-card-expanded");
 
         if (!expanded) return;
 
-        expanded.hidden = !expanded.hidden;
+        expanded.classList.toggle("is-open");
 
       });
 
