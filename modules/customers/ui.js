@@ -70,13 +70,22 @@ function renderCustomersList(customers) {
  * @returns {string}
  */
 function renderCustomerRecord(customer) {
+
   return renderCard({
 
     body: renderCustomerSummary(customer),
 
-    expanded: renderCustomerDetails(customer)
+    expanded: `
+      <div
+        class="customer-record-expanded"
+        hidden
+      >
+        ${renderCustomerDetails(customer)}
+      </div>
+    `
 
   });
+
 }
 
 /**
@@ -88,25 +97,30 @@ function renderCustomerRecord(customer) {
 function renderCustomerSummary(customer) {
 
   return `
-    <div class="customer-record-summary">
+    <div
+      class="customer-record-summary"
+      data-customer-id="${customer.id}"
+    >
 
-      <h3 class="customer-record-name">
-        ${customer.name}
-      </h3>
+      <div class="customer-record-main">
 
-      ${
-        customer.phone
-          ? `
-            <p class="customer-record-phone">
-              ${customer.phone}
-            </p>
-          `
-          : ""
-      }
+        <h3 class="customer-record-name">
+          ${customer.name}
+        </h3>
 
-      <p class="customer-record-category">
+        ${
+          customer.phone
+            ? `
+              <p class="customer-record-phone">
+                ${customer.phone}
+              </p>
+            `
+            : ""
+        }
+
         ${renderCustomerCategory(customer)}
-      </p>
+
+      </div>
 
     </div>
   `;
@@ -180,11 +194,20 @@ function renderCustomerDetails(customer) {
  */
 function renderCustomerCategory(customer) {
 
+  let label = "Inactivo";
+  let css = "inactive";
+
   if (customer.active) {
-    return "Frecuente";
+    label = "Frecuente";
+    css = "frequent";
   }
 
-  return "Ocasional";
+  return `
+    <p class="customer-record-category ${css}">
+      <span class="customer-record-bullet"></span>
+      ${label}
+    </p>
+  `;
 }
 
 /**
