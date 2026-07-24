@@ -91,6 +91,29 @@ function bindCustomersEvents() {
     btnNewCustomer.addEventListener("click", handleNewCustomer);
   }
 }
+function bindCustomerRecordEvents() {
+
+  document
+    .querySelectorAll(".customer-record-summary")
+    .forEach(summary => {
+
+      summary.addEventListener("click", () => {
+
+        const card = summary.closest(".ui-card");
+
+        if (!card) return;
+
+        const expanded = card.querySelector(".customer-record-expanded");
+
+        if (!expanded) return;
+
+        expanded.hidden = !expanded.hidden;
+
+      });
+
+    });
+
+}
 
 /**
  * Acción temporal para iniciar la creación
