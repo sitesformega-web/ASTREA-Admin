@@ -1,23 +1,62 @@
+/**
+ * ============================================================
+ * ASTREA™ Commerce
+ * Card Component
+ * ============================================================
+ */
+
 .ui-card {
+  display: flex;
+  flex-direction: column;
+
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
+
   box-shadow: var(--shadow-soft);
-  padding: var(--space-4);
+
+  overflow: hidden;
 }
 
 .ui-card.compact {
-  padding: var(--space-3);
+  border-radius: var(--radius-lg);
 }
+
+/* ============================================================
+   Sections
+   ============================================================ */
+
+.ui-card-header,
+.ui-card-body,
+.ui-card-footer,
+.ui-card-expanded {
+  padding: var(--space-4);
+}
+
+.ui-card-header + .ui-card-body,
+.ui-card-body + .ui-card-footer,
+.ui-card-footer + .ui-card-expanded,
+.ui-card-body + .ui-card-expanded {
+  border-top: 1px solid var(--border);
+}
+
+/* ============================================================
+   Helpers
+   ============================================================ */
 
 .ui-card-title {
   margin: 0;
+
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
+
+  color: var(--text);
 }
 
 .ui-card-subtitle {
-  margin: 4px 0 0;
-  color: var(--muted);
+  margin-top: 4px;
+
   font-size: 13px;
+
+  color: var(--muted);
 }
