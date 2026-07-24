@@ -60,3 +60,15 @@
 
   color: var(--muted);
 }
+
+/* ============================================================
+   Expandable Section
+   ============================================================ */
+
+.ui-card-expanded {
+  display: none;
+}
+
+.ui-card-expanded.is-open {
+  display: block;
+}
