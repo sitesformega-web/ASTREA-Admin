@@ -31,9 +31,7 @@ function renderCustomersModule(container) {
 }
 
 /**
- * Renderiza el encabezado del módulo.
- *
- * @returns {string}
+ * Encabezado del módulo.
  */
 function renderCustomersHeader() {
   return renderModuleHeader({
@@ -43,9 +41,7 @@ function renderCustomersHeader() {
 }
 
 /**
- * Renderiza la barra de búsqueda.
- *
- * @returns {string}
+ * Barra de búsqueda.
  */
 function renderCustomersToolbar() {
   return renderSearchToolbar({
@@ -54,7 +50,7 @@ function renderCustomersToolbar() {
 }
 
 /**
- * Renderiza el listado.
+ * Listado.
  *
  * @param {Array} customers
  * @returns {string}
@@ -62,104 +58,137 @@ function renderCustomersToolbar() {
 function renderCustomersList(customers) {
   return `
     <div class="customers-list">
-      ${customers.map(renderCustomerCard).join("")}
+      ${customers.map(renderCustomerRecord).join("")}
     </div>
   `;
 }
 
 /**
- * Renderiza una tarjeta.
+ * Registro de cliente.
  *
  * @param {Object} customer
  * @returns {string}
  */
-function renderCustomerCard(customer) {
+function renderCustomerRecord(customer) {
+  return renderCard({
+
+    body: renderCustomerSummary(customer),
+
+    expanded: renderCustomerDetails(customer)
+
+  });
+}
+
+/**
+ * Resumen del cliente.
+ *
+ * @param {Object} customer
+ * @returns {string}
+ */
+function renderCustomerSummary(customer) {
+
   return `
-    <article
-      class="customer-card ${customer.active ? "" : "is-inactive"}"
-      data-customer-id="${customer.id}"
-    >
+    <div class="customer-record-summary">
 
-      <header class="customer-card-header">
+      <h3 class="customer-record-name">
+        ${customer.name}
+      </h3>
 
-        <button
-          class="customer-card-toggle"
-          type="button"
-          aria-label="Expandir cliente"
-        >
-          ▼
-        </button>
+      ${
+        customer.phone
+          ? `
+            <p class="customer-record-phone">
+              ${customer.phone}
+            </p>
+          `
+          : ""
+      }
 
-        <div class="customer-card-body">
+      <p class="customer-record-category">
+        ${renderCustomerCategory(customer)}
+      </p>
 
-          <div class="customer-card-title">
-
-            <h3 class="customer-card-name">
-              ${customer.name}
-            </h3>
-
-            ${renderCustomerStatus(customer.active)}
-
-          </div>
-
-          ${
-            customer.phone
-              ? `
-                <p class="customer-card-phone">
-                  📱 ${customer.phone}
-                </p>
-              `
-              : ""
-          }
-
-        </div>
-
-      </header>
-
-      <footer class="customer-card-actions">
-
-        <button
-          class="customer-action"
-          type="button"
-          data-action="whatsapp"
-        >
-          💬 WhatsApp
-        </button>
-
-        <button
-          class="customer-action"
-          type="button"
-          data-action="edit"
-        >
-          ✏ Editar
-        </button>
-
-      </footer>
-
-      <div class="customer-card-content"></div>
-
-    </article>
+    </div>
   `;
 }
 
 /**
- * Estado comercial.
+ * Detalle del cliente.
  *
- * @param {boolean} active
+ * @param {Object} customer
  * @returns {string}
  */
-function renderCustomerStatus(active) {
+function renderCustomerDetails(customer) {
+
   return `
-    <span class="customer-status ${active ? "is-active" : "is-inactive"}">
-      ${active ? "Frecuente" : "Ocasional"}
-    </span>
+    <div class="customer-record-details">
+
+      <div class="customer-record-field">
+        <strong>Última compra</strong>
+        <span>${customer.lastPurchase || "Sin compras"}</span>
+      </div>
+
+      <div class="customer-record-field">
+        <strong>Pedidos</strong>
+        <span>${customer.orders ?? 0}</span>
+      </div>
+
+      ${
+        customer.notes
+          ? `
+            <div class="customer-record-field">
+              <strong>Notas</strong>
+              <span>${customer.notes}</span>
+            </div>
+          `
+          : ""
+      }
+
+    </div>
+
+    <div class="customer-record-actions">
+
+      ${renderButton({
+        id: `btnWhatsapp-${customer.id}`,
+        label: "WhatsApp"
+      })}
+
+      ${renderButton({
+        id: `btnEdit-${customer.id}`,
+        label: "Editar"
+      })}
+
+      ${renderButton({
+        id: `btnHistory-${customer.id}`,
+        label: "Ver historial",
+        variant: "secondary"
+      })}
+
+    </div>
   `;
+}
+
+/**
+ * Categoría comercial.
+ *
+ * Temporalmente se basa en el estado activo.
+ * Más adelante se calculará desde el historial
+ * de compras.
+ *
+ * @param {Object} customer
+ * @returns {string}
+ */
+function renderCustomerCategory(customer) {
+
+  if (customer.active) {
+    return "Frecuente";
+  }
+
+  return "Ocasional";
 }
 
 /**
  * Estado vacío.
- *
- * @returns {string}
  */
 function renderCustomersEmptyState() {
   return renderEmptyState({
