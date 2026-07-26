@@ -76,13 +76,10 @@ function renderCustomerRecord(customer) {
     body: renderCustomerSummary(customer),
 
     expanded: `
-      <div
-        class="customer-record-expanded"
-        hidden
-      >
-        ${renderCustomerDetails(customer)}
-      </div>
-    `
+    <div style="padding:20px;">
+      HOLA ASTREA
+    </div>
+  `
 
   });
 
