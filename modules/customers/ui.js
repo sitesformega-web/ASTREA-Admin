@@ -153,27 +153,53 @@ function renderCustomerDetails(customer) {
 
     </div>
 
+    <div class="customer-record-actions">
+
+      ${renderButton(
+        "WhatsApp",
+        {
+          id: `btnWhatsapp-${customer.id}`
+        }
+      )}
+
+      ${renderButton(
+        "Editar",
+        {
+          id: `btnEdit-${customer.id}`
+        }
+      )}
+
+      ${renderButton(
+        "Ver historial",
+        {
+          id: `btnHistory-${customer.id}`,
+          type: "secondary"
+        }
+      )}
+
+    </div>
   `;
 }
 
 /**
  * Categoría comercial.
  *
- * Temporalmente se basa en el estado activo.
- * Más adelante se calculará desde el historial
- * de compras.
- *
  * @param {Object} customer
  * @returns {string}
  */
 function renderCustomerCategory(customer) {
 
-  let label = "Inactivo";
-  let css = "inactive";
+  let label = "Frecuente";
+  let css = "frequent";
 
-  if (customer.active) {
-    label = "Frecuente";
-    css = "frequent";
+  if (customer.category === "occasional") {
+    label = "Ocasional";
+    css = "occasional";
+  }
+
+  if (customer.category === "inactive") {
+    label = "Inactivo";
+    css = "inactive";
   }
 
   return `
