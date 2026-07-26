@@ -23,6 +23,8 @@ const CUSTOMERS_DEMO_DATA = [
     address: "Asunción",
     notes: "Prefiere recibir mensajes por WhatsApp.",
     active: true,
+    lastPurchase: "Hace 3 días",
+    orders: 12,
     createdAt: "2026-07-23T10:00:00.000Z",
     updatedAt: "2026-07-23T10:00:00.000Z"
   },
@@ -36,6 +38,8 @@ const CUSTOMERS_DEMO_DATA = [
     address: "San Lorenzo",
     notes: "",
     active: true,
+    lastPurchase: "Hace 8 días",
+    orders: 7,
     createdAt: "2026-07-23T10:10:00.000Z",
     updatedAt: "2026-07-23T10:10:00.000Z"
   },
@@ -49,6 +53,8 @@ const CUSTOMERS_DEMO_DATA = [
     address: "",
     notes: "Cliente ocasional.",
     active: false,
+    lastPurchase: "Hace 4 meses",
+    orders: 2,
     createdAt: "2026-07-23T10:20:00.000Z",
     updatedAt: "2026-07-23T10:20:00.000Z"
   }
@@ -79,10 +85,12 @@ function renderCustomersView() {
     : renderCustomersEmptyState();
 
   bindCustomersEvents();
+  bindCustomerRecordEvents();
 }
 
 /**
- * Registra los eventos disponibles en la vista.
+ * Registra los eventos generales disponibles
+ * en la vista.
  */
 function bindCustomersEvents() {
   const btnNewCustomer = document.getElementById("btnNewCustomer");
@@ -91,28 +99,38 @@ function bindCustomersEvents() {
     btnNewCustomer.addEventListener("click", handleNewCustomer);
   }
 }
+
+/**
+ * Registra la apertura y cierre de los detalles
+ * de cada cliente.
+ */
 function bindCustomerRecordEvents() {
+  const summaries = document.querySelectorAll(
+    ".customer-record-summary"
+  );
 
-  document
-    .querySelectorAll(".customer-record-summary")
-    .forEach(summary => {
+  summaries.forEach(summary => {
+    summary.addEventListener("click", handleCustomerRecordToggle);
+  });
+}
 
-      summary.addEventListener("click", () => {
+/**
+ * Abre o cierra el detalle de un cliente.
+ *
+ * @param {MouseEvent} event
+ */
+function handleCustomerRecordToggle(event) {
+  const summary = event.currentTarget;
 
-        const card = summary.closest(".ui-card");
+  const card = summary.closest(".ui-card");
 
-        if (!card) return;
+  if (!card) return;
 
-        const expanded = card.querySelector(".ui-card-expanded");
+  const expanded = card.querySelector(".ui-card-expanded");
 
-        if (!expanded) return;
+  if (!expanded) return;
 
-        expanded.classList.toggle("is-open");
-
-      });
-
-    });
-
+  expanded.classList.toggle("is-open");
 }
 
 /**
