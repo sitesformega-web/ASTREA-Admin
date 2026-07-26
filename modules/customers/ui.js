@@ -157,25 +157,6 @@ function renderCustomerDetails(customer) {
 
     </div>
 
-    <div class="customer-record-actions">
-
-      ${renderButton({
-        id: `btnWhatsapp-${customer.id}`,
-        label: "WhatsApp"
-      })}
-
-      ${renderButton({
-        id: `btnEdit-${customer.id}`,
-        label: "Editar"
-      })}
-
-      ${renderButton({
-        id: `btnHistory-${customer.id}`,
-        label: "Ver historial",
-        variant: "secondary"
-      })}
-
-    </div>
   `;
 }
 
