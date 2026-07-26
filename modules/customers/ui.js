@@ -75,11 +75,7 @@ function renderCustomerRecord(customer) {
 
     body: renderCustomerSummary(customer),
 
-    expanded: `
-    <div style="padding:20px;">
-      HOLA ASTREA
-    </div>
-  `
+    expanded: renderCustomerDetails(customer)
 
   });
 
