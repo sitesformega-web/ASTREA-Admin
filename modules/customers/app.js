@@ -22,7 +22,7 @@ const CUSTOMERS_DEMO_DATA = [
     email: "maria@example.com",
     address: "Asunción",
     notes: "Prefiere recibir mensajes por WhatsApp.",
-    active: true,
+    category: "frequent"
     lastPurchase: "Hace 3 días",
     orders: 12,
     createdAt: "2026-07-23T10:00:00.000Z",
@@ -37,7 +37,7 @@ const CUSTOMERS_DEMO_DATA = [
     email: "",
     address: "San Lorenzo",
     notes: "",
-    active: true,
+    category: "frequent"
     lastPurchase: "Hace 8 días",
     orders: 7,
     createdAt: "2026-07-23T10:10:00.000Z",
@@ -52,7 +52,7 @@ const CUSTOMERS_DEMO_DATA = [
     email: "carlos@example.com",
     address: "",
     notes: "Cliente ocasional.",
-    active: false,
+    category: "inactive"
     lastPurchase: "Hace 4 meses",
     orders: 2,
     createdAt: "2026-07-23T10:20:00.000Z",
