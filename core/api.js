@@ -16,9 +16,20 @@ async function adminApiRequest(action, options = {}) {
   return data;
 }
 
-async function adminFetchProducts() {
-  const data = await adminApiRequest("adminProducts");
-  return data.products || [];
+async function adminFetchCustomers() {
+  const data = await adminApiRequest("customers");
+
+  return (data.customers || []).map(customer => ({
+    id: customer.id,
+    name: customer.nombre,
+    phone: customer.telefono,
+    category: customer.categoria,
+    notes: customer.notas,
+    active: customer.activo === true || customer.activo === "TRUE",
+    orders: Number(customer.orders || 0),
+    createdAt: customer.createdAt,
+    updatedAt: customer.updatedAt
+  }));
 }
 
 async function adminCreateProduct(product) {
