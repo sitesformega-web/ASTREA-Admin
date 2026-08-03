@@ -6,17 +6,17 @@
  * ============================================================
  */
 
-const customers = await adminFetchCustomers();
-
-setCustomers(customers);
-
 /**
  * Inicializa el módulo Customers.
  */
-function loadCustomers() {
-  setCustomers(CUSTOMERS_DEMO_DATA);
+async function loadCustomers() {
+
+  const customers = await adminFetchCustomers();
+
+  setCustomers(customers);
 
   renderCustomersView();
+
 }
 
 /**
