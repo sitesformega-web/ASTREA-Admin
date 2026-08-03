@@ -58,11 +58,6 @@ async function adminFetchOrders() {
   return data.orders || [];
 }
 
-async function adminFetchCustomers() {
-  const data = await adminApiRequest("customers");
-  return data.customers || [];
-}
-
 async function adminUpdateOrderStatus(orderId, status) {
   return await adminApiRequest("updateOrderStatus", {
     method: "POST",
