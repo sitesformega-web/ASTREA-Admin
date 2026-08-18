@@ -289,7 +289,53 @@ async function saveCustomer(customerId) {
 }
 
 /**
- * Abre WhatsApp.
+ * Normaliza un teléfono para usarlo con WhatsApp.
+ *
+ * Paraguay:
+ * 0994 151453  -> 595994151453
+ * 994151453   -> 595994151453
+ * +595994...  -> 595994...
+ *
+ * Otros números internacionales con código de país
+ * se conservan sin símbolos.
+ */
+function normalizeWhatsAppPhone(phone) {
+  const raw = String(phone || "").trim();
+
+  if (!raw) return "";
+
+  const digits = raw.replace(/\D/g, "");
+
+  // Paraguay con código internacional
+  if (digits.startsWith("595")) {
+    return digits;
+  }
+
+  // Paraguay local con cero inicial
+  if (
+    digits.length === 10 &&
+    digits.startsWith("09")
+  ) {
+    return "595" + digits.slice(1);
+  }
+
+  // Paraguay local sin cero inicial
+  if (
+    digits.length === 9 &&
+    digits.startsWith("9")
+  ) {
+    return "595" + digits;
+  }
+
+  // Otros números: se asume que ya incluyen
+  // el código internacional correspondiente.
+  return digits;
+}
+
+
+/**
+ * Abre una conversación de WhatsApp
+ * con el cliente.
  */
 function openCustomerWhatsApp(customerId) {
   const customer =
@@ -306,16 +352,26 @@ function openCustomerWhatsApp(customerId) {
     return;
   }
 
-  const phone = String(
-    customer.phone
-  ).replace(/\D/g, "");
+  const phone =
+    normalizeWhatsAppPhone(
+      customer.phone
+    );
+
+  if (!phone) {
+    showToast(
+      "El teléfono del cliente no es válido.",
+      "error"
+    );
+
+    return;
+  }
 
   window.open(
     `https://wa.me/${phone}`,
-    "_blank"
+    "_blank",
+    "noopener,noreferrer"
   );
 }
-
 /**
  * Reabre visualmente una card
  * después de un re-render.
