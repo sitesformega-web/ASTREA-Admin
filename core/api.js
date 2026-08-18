@@ -117,6 +117,9 @@ async function adminFetchCustomers() {
         customer.orders || 0
       ),
 
+      lastPurchase:
+      customer.ultimaCompra,
+
       createdAt: customer.createdAt,
 
       updatedAt: customer.updatedAt
