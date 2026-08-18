@@ -19,6 +19,7 @@ const ADMIN_STATE = {
 
   customersSearch: "",
   selectedCustomerId: null,
+  editingCustomerId: null,
   creatingCustomer: false,
 
   loading: false
@@ -69,4 +70,8 @@ function setSelectedCustomer(customerId) {
 
 function setCreatingCustomer(value) {
   ADMIN_STATE.creatingCustomer = Boolean(value);
+}
+
+function setEditingCustomer(customerId) {
+  ADMIN_STATE.editingCustomerId = customerId || null;
 }
