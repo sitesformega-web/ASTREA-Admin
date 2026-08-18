@@ -70,15 +70,10 @@ function renderCustomersList(customers) {
  * @returns {string}
  */
 function renderCustomerRecord(customer) {
-
   return renderCard({
-
     body: renderCustomerSummary(customer),
-
-    expanded: renderCustomerDetails(customer)
-
+    expanded: renderCustomerExpanded(customer)
   });
-
 }
 
 /**
@@ -88,13 +83,11 @@ function renderCustomerRecord(customer) {
  * @returns {string}
  */
 function renderCustomerSummary(customer) {
-
   return `
     <div
       class="customer-record-summary"
       data-customer-id="${customer.id}"
     >
-
       <div class="customer-record-main">
 
         <h3 class="customer-record-name">
@@ -114,9 +107,23 @@ function renderCustomerSummary(customer) {
         ${renderCustomerCategory(customer)}
 
       </div>
-
     </div>
   `;
+}
+
+/**
+ * Contenido expandido.
+ *
+ * @param {Object} customer
+ * @returns {string}
+ */
+function renderCustomerExpanded(customer) {
+  const editing =
+    ADMIN_STATE.editingCustomerId === customer.id;
+
+  return editing
+    ? renderCustomerEditor(customer)
+    : renderCustomerDetails(customer);
 }
 
 /**
@@ -126,7 +133,6 @@ function renderCustomerSummary(customer) {
  * @returns {string}
  */
 function renderCustomerDetails(customer) {
-
   return `
     <div class="customer-record-details">
 
@@ -182,13 +188,79 @@ function renderCustomerDetails(customer) {
 }
 
 /**
+ * Formulario de edición.
+ *
+ * @param {Object} customer
+ * @returns {string}
+ */
+function renderCustomerEditor(customer) {
+  return `
+    <div class="customer-record-editor">
+
+      <label>
+        Nombre
+
+        <input
+          id="customer-name-${customer.id}"
+          type="text"
+          value="${customer.name || ""}"
+          maxlength="120"
+          autocomplete="off"
+        >
+      </label>
+
+      <label>
+        Teléfono
+
+        <input
+          id="customer-phone-${customer.id}"
+          type="text"
+          value="${customer.phone || ""}"
+          maxlength="30"
+          autocomplete="off"
+        >
+      </label>
+
+      <label>
+        Notas
+
+        <textarea
+          id="customer-notes-${customer.id}"
+          rows="4"
+          maxlength="500"
+        >${customer.notes || ""}</textarea>
+      </label>
+
+      <div class="customer-record-actions">
+
+        ${renderButton(
+          "Guardar cambios",
+          {
+            id: `btnSaveCustomer-${customer.id}`
+          }
+        )}
+
+        ${renderButton(
+          "Cancelar",
+          {
+            id: `btnCancelCustomer-${customer.id}`,
+            type: "secondary"
+          }
+        )}
+
+      </div>
+
+    </div>
+  `;
+}
+
+/**
  * Categoría comercial.
  *
  * @param {Object} customer
  * @returns {string}
  */
 function renderCustomerCategory(customer) {
-
   let label = "Frecuente";
   let css = "frequent";
 
@@ -216,8 +288,6 @@ function renderCustomerCategory(customer) {
 function renderCustomersEmptyState() {
   return renderEmptyState({
     title: "No hay clientes registrados.",
-    description: "Comenzá creando tu primer cliente.",
-    buttonLabel: "Nuevo cliente",
-    buttonId: "btnNewCustomer"
+    description: "Los clientes se registrarán automáticamente con los pedidos."
   });
 }
