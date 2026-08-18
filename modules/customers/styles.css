@@ -47,6 +47,13 @@
   font-weight: 700;
 
   color: var(--text);
+
+  transition: color var(--transition-fast);
+}
+
+.customer-record-summary:hover
+.customer-record-name {
+  color: var(--primary);
 }
 
 .customer-record-phone {
@@ -82,15 +89,18 @@
   background: var(--border);
 }
 
-.customer-record-category.frequent .customer-record-bullet {
+.customer-record-category.frequent
+.customer-record-bullet {
   background: var(--success);
 }
 
-.customer-record-category.occasional .customer-record-bullet {
+.customer-record-category.occasional
+.customer-record-bullet {
   background: var(--warning);
 }
 
-.customer-record-category.inactive .customer-record-bullet {
+.customer-record-category.inactive
+.customer-record-bullet {
   background: var(--muted);
 }
 
@@ -98,8 +108,32 @@
    Expanded
    ============================================================ */
 
-.customer-record-expanded[hidden] {
-  display: none;
+/*
+ * Card usa display:none por defecto.
+ * Customers sobreescribe ese comportamiento
+ * para permitir una transición suave.
+ */
+
+.customers-module .ui-card-expanded {
+  display: block;
+
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+
+  visibility: hidden;
+
+  transition:
+    max-height 280ms ease,
+    opacity 180ms ease,
+    visibility 280ms ease;
+}
+
+.customers-module .ui-card-expanded.is-open {
+  max-height: 1200px;
+  opacity: 1;
+
+  visibility: visible;
 }
 
 /* ============================================================
@@ -176,8 +210,10 @@
 }
 
 .customer-record-editor textarea {
-  resize: vertical;
   min-height: 120px;
+  resize: vertical;
+
+  line-height: 1.5;
 }
 
 .customer-record-editor input:focus,
@@ -208,7 +244,9 @@
 
   .customer-record-details {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
     gap: var(--space-5);
   }
 
@@ -217,7 +255,9 @@
   }
 
   .customer-record-editor {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
     gap: var(--space-5);
   }
 
@@ -225,11 +265,14 @@
     grid-column: 1 / -1;
   }
 
-  .customer-record-editor .customer-record-actions {
+  .customer-record-editor
+  .customer-record-actions {
     grid-column: 1 / -1;
 
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
     gap: var(--space-3);
 
     margin-top: var(--space-2);
@@ -237,7 +280,9 @@
 
   .customer-record-actions {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+
     gap: var(--space-3);
   }
 
@@ -245,4 +290,17 @@
     width: 100%;
     min-width: 0;
   }
+}
+
+/* ============================================================
+   Accessibility
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .customers-module .ui-card-expanded,
+  .customer-record-name {
+    transition: none;
+  }
+
 }
