@@ -127,6 +127,72 @@ function renderCustomerExpanded(customer) {
 }
 
 /**
+ * Formatea la fecha de última compra
+ * para lectura comercial rápida.
+ *
+ * Hasta 30 días utiliza formato relativo.
+ * Después muestra la fecha exacta.
+ *
+ * @param {string|Date|null} value
+ * @returns {string}
+ */
+function formatCustomerLastPurchase(value) {
+  if (!value) {
+    return "Sin compras";
+  }
+
+  const purchaseDate = new Date(value);
+
+  if (Number.isNaN(purchaseDate.getTime())) {
+    return "Sin compras";
+  }
+
+  const today = new Date();
+
+  // Comparar días calendario, ignorando la hora.
+  const todayStart = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
+  const purchaseStart = new Date(
+    purchaseDate.getFullYear(),
+    purchaseDate.getMonth(),
+    purchaseDate.getDate()
+  );
+
+  const millisecondsPerDay =
+    24 * 60 * 60 * 1000;
+
+  const daysAgo = Math.floor(
+    (todayStart - purchaseStart) /
+    millisecondsPerDay
+  );
+
+  if (daysAgo <= 0) {
+    return "Hoy";
+  }
+
+  if (daysAgo === 1) {
+    return "Ayer";
+  }
+
+  if (daysAgo <= 30) {
+    return `Hace ${daysAgo} días`;
+  }
+
+  return purchaseDate.toLocaleDateString(
+    "es-PY",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    }
+  );
+}
+
+/**
  * Detalle del cliente.
  *
  * @param {Object} customer
@@ -138,7 +204,7 @@ function renderCustomerDetails(customer) {
 
       <div class="customer-record-field">
         <strong>Última compra</strong>
-        <span>${customer.lastPurchase || "Sin compras"}</span>
+        <span>${formatCustomerLastPurchase(customer.lastPurchase)}</span>
       </div>
 
       <div class="customer-record-field">
