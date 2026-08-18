@@ -131,6 +131,64 @@
 }
 
 /* ============================================================
+   Editor
+   ============================================================ */
+
+.customer-record-editor {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+
+  padding-top: var(--space-5);
+
+  border-top: 1px solid var(--border);
+}
+
+.customer-record-editor label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: var(--text);
+}
+
+.customer-record-editor input,
+.customer-record-editor textarea {
+  width: 100%;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+
+  background: var(--surface);
+
+  padding: 12px 14px;
+
+  color: var(--text);
+
+  outline: none;
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.customer-record-editor textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.customer-record-editor input:focus,
+.customer-record-editor textarea:focus {
+  border-color: var(--primary);
+
+  box-shadow:
+    0 0 0 3px var(--primary-soft);
+}
+
+/* ============================================================
    Actions
    ============================================================ */
 
@@ -149,32 +207,42 @@
 @media (min-width: 768px) {
 
   .customer-record-details {
-
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-5);
-
   }
 
   .customer-record-field:last-child {
+    grid-column: 1 / -1;
+  }
 
+  .customer-record-editor {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+
+  .customer-record-editor label:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
+  .customer-record-editor .customer-record-actions {
     grid-column: 1 / -1;
 
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+
+    margin-top: var(--space-2);
   }
 
   .customer-record-actions {
-
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-3);
-
   }
 
   .customer-record-actions .ui-button {
-
     width: 100%;
     min-width: 0;
-
   }
-
 }
