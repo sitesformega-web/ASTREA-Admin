@@ -127,7 +127,12 @@ function bindCustomerRecordEvents() {
 }
 
 /**
- * Abre o cierra el detalle.
+ * Abre o cierra el detalle de un cliente.
+ *
+ * Mantiene una sola tarjeta expandida
+ * al mismo tiempo.
+ *
+ * @param {MouseEvent} event
  */
 function handleCustomerRecordToggle(event) {
   const summary = event.currentTarget;
@@ -142,7 +147,22 @@ function handleCustomerRecordToggle(event) {
 
   if (!expanded) return;
 
-  expanded.classList.toggle("is-open");
+  const wasOpen =
+    expanded.classList.contains("is-open");
+
+  // Cerrar cualquier tarjeta abierta.
+  document
+    .querySelectorAll(
+      ".customers-list .ui-card-expanded.is-open"
+    )
+    .forEach(item => {
+      item.classList.remove("is-open");
+    });
+
+  // Si la actual estaba cerrada, abrirla.
+  if (!wasOpen) {
+    expanded.classList.add("is-open");
+  }
 }
 
 /**
