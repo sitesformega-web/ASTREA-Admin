@@ -3,6 +3,12 @@
    API
    ========================================================================== */
 
+/* ==========================================================================
+   Pending GET requests
+   ========================================================================== */
+
+const ADMIN_API_PENDING_GETS =
+  new Map();
 
 /* ==========================================================================
    Base request
@@ -17,8 +23,60 @@ async function adminApiRequest(
       options.method || "GET"
     ).toUpperCase();
 
+  if (method !== "GET") {
+    return executeAdminApiRequest(
+      action,
+      options
+    );
+  }
+
+  if (
+    ADMIN_API_PENDING_GETS.has(action)
+  ) {
+    return ADMIN_API_PENDING_GETS.get(
+      action
+    );
+  }
+
+  const request =
+    executeAdminApiRequest(
+      action,
+      options
+    )
+      .finally(() => {
+        ADMIN_API_PENDING_GETS.delete(
+          action
+        );
+      });
+
+  ADMIN_API_PENDING_GETS.set(
+    action,
+    request
+  );
+
+  return request;
+}
+
+async function executeAdminApiRequest(
+  action,
+  options = {}
+) {
+  const method =
+    String(
+      options.method || "GET"
+    ).toUpperCase();
+
   const body =
     options.body || null;
+
+    if (
+  method === "GET" &&
+  ADMIN_API_PENDING_GETS.has(action)
+) {
+  return ADMIN_API_PENDING_GETS.get(
+    action
+  );
+}
 
   /*
    * GET puede reintentarse de forma segura.
