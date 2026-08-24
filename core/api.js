@@ -1,3 +1,15 @@
+/* ==========================================================================
+   API request cache
+   ========================================================================== */
+
+const ADMIN_API_GET_CACHE_TTL = 10000;
+
+const ADMIN_API_GET_CACHE =
+  new Map();
+
+const ADMIN_API_PENDING_GETS =
+  new Map();
+
 async function adminApiRequest(
   action,
   options = {}
@@ -6,15 +18,107 @@ async function adminApiRequest(
     method = "GET",
     body = null,
     retries = 2,
-    timeout = 12000
+    timeout = 12000,
+    useCache = true
   } = options;
 
+  const normalizedMethod =
+    String(method).toUpperCase();
+
+  /*
+   * Sólo cacheamos GET.
+   *
+   * POST y cualquier futura operación de escritura
+   * siempre llegan al backend.
+   */
+  if (
+    normalizedMethod === "GET" &&
+    useCache
+  ) {
+    const cached =
+      getAdminApiCachedResponse(action);
+
+    if (cached !== null) {
+      return cached;
+    }
+
+    /*
+     * Si ya existe exactamente este GET en curso,
+     * reutilizamos su Promise.
+     */
+    if (
+      ADMIN_API_PENDING_GETS.has(action)
+    ) {
+      return ADMIN_API_PENDING_GETS.get(
+        action
+      );
+    }
+
+    const request =
+      executeAdminApiRequest(
+        action,
+        {
+          method: normalizedMethod,
+          body,
+          retries,
+          timeout
+        }
+      )
+        .then(data => {
+          setAdminApiCachedResponse(
+            action,
+            data
+          );
+
+          return data;
+        })
+        .finally(() => {
+          ADMIN_API_PENDING_GETS.delete(
+            action
+          );
+        });
+
+    ADMIN_API_PENDING_GETS.set(
+      action,
+      request
+    );
+
+    return request;
+  }
+
+  /*
+   * Las escrituras nunca usan cache.
+   */
+  return executeAdminApiRequest(
+    action,
+    {
+      method: normalizedMethod,
+      body,
+      retries,
+      timeout
+    }
+  );
+}
+
+async function executeAdminApiRequest(
+  action,
+  {
+    method = "GET",
+    body = null,
+    retries = 2,
+    timeout = 12000
+  } = {}
+) {
   const url =
     `${ADMIN_CONFIG.api.endpoint}?action=${encodeURIComponent(action)}`;
 
   let lastError = null;
 
-  for (let attempt = 0; attempt <= retries; attempt++) {
+  for (
+    let attempt = 0;
+    attempt <= retries;
+    attempt++
+  ) {
     const controller =
       new AbortController();
 
@@ -32,7 +136,8 @@ async function adminApiRequest(
 
       if (body !== null) {
         fetchOptions.headers = {
-          "Content-Type": "text/plain;charset=utf-8"
+          "Content-Type":
+            "text/plain;charset=utf-8"
         };
 
         fetchOptions.body =
@@ -53,6 +158,154 @@ async function adminApiRequest(
           "content-type"
         ) || "";
 
+      if (
+        !contentType.includes(
+          "application/json"
+        ) &&
+        !looksLikeJson(responseText)
+      ) {
+        throw createAdminApiError(
+          "El servicio respondió con un formato inesperado.",
+          {
+            retryable: true,
+            status: response.status
+          }
+        );
+      }
+
+      let data;
+
+      try {
+        data =
+          JSON.parse(responseText);
+      } catch (error) {
+        throw createAdminApiError(
+          "La respuesta del servicio no contiene JSON válido.",
+          {
+            retryable: true,
+            status: response.status
+          }
+        );
+      }
+
+      if (!response.ok) {
+        throw createAdminApiError(
+          data.message ||
+            `Error HTTP ${response.status}.`,
+          {
+            retryable:
+              isRetryableAdminStatus(
+                response.status
+              ),
+
+            status: response.status
+          }
+        );
+      }
+
+      if (data.success === false) {
+        throw createAdminApiError(
+          data.message ||
+            "La operación no pudo completarse.",
+          {
+            retryable: false,
+            status: response.status
+          }
+        );
+      }
+
+      return data;
+
+    } catch (error) {
+      if (
+        error &&
+        error.name === "AbortError"
+      ) {
+        lastError =
+          createAdminApiError(
+            "El servicio tardó demasiado en responder.",
+            {
+              retryable: true
+            }
+          );
+      } else {
+        lastError = error;
+      }
+
+      const canRetry =
+        lastError &&
+        lastError.retryable === true &&
+        attempt < retries;
+
+      if (!canRetry) {
+        break;
+      }
+
+      await adminApiDelay(
+        getAdminRetryDelay(attempt)
+      );
+
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  console.error(
+    `[ASTREA API] ${action}`,
+    lastError
+  );
+
+  throw new Error(
+    getAdminApiUserMessage(lastError)
+  );
+}
+
+function getAdminApiCachedResponse(
+  action
+) {
+  const entry =
+    ADMIN_API_GET_CACHE.get(action);
+
+  if (!entry) {
+    return null;
+  }
+
+  const age =
+    Date.now() - entry.timestamp;
+
+  if (age >= ADMIN_API_GET_CACHE_TTL) {
+    ADMIN_API_GET_CACHE.delete(action);
+
+    return null;
+  }
+
+  return entry.data;
+}
+
+
+function setAdminApiCachedResponse(
+  action,
+  data
+) {
+  ADMIN_API_GET_CACHE.set(
+    action,
+    {
+      data,
+      timestamp: Date.now()
+    }
+  );
+}
+
+
+function clearAdminApiCache(action) {
+  if (action) {
+    ADMIN_API_GET_CACHE.delete(action);
+
+    return;
+  }
+
+  ADMIN_API_GET_CACHE.clear();
+}
       /*
        * Apps Script puede responder HTML ante
        * fallos temporales de infraestructura.
