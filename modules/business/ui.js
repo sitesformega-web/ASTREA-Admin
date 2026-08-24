@@ -3,8 +3,6 @@
    Business Module UI
    ========================================================================== */
 
-let expandedBusinessSection = null;
-
 
 /* ==========================================================================
    Module render
@@ -19,7 +17,8 @@ async function renderBusinessModule(container) {
   } catch (error) {
     renderBusinessError(
       container,
-      error.message || "No se pudo cargar la información del negocio."
+      error.message ||
+        "No se pudo cargar la información del negocio."
     );
   }
 }
@@ -31,9 +30,11 @@ async function renderBusinessModule(container) {
 
 function renderBusinessLoading(container) {
   container.innerHTML = `
-    <section class="admin-card">
-      <h2>🏪 Mi negocio</h2>
-      <p>Cargando información...</p>
+    <section class="business-module">
+      <header class="business-header">
+        <h2>🏪 Negocio</h2>
+        <p>Cargando información...</p>
+      </header>
     </section>
   `;
 }
@@ -41,12 +42,13 @@ function renderBusinessLoading(container) {
 
 function renderBusinessError(container, message) {
   container.innerHTML = `
-    <section class="admin-card">
-      <h2>🏪 Mi negocio</h2>
-
-      <p>
-        ${escapeBusinessHtml(message)}
-      </p>
+    <section class="business-module">
+      <header class="business-header">
+        <h2>🏪 Negocio</h2>
+        <p>
+          ${escapeBusinessHtml(message)}
+        </p>
+      </header>
 
       <button
         type="button"
@@ -88,91 +90,63 @@ function renderBusinessContent(container) {
   }
 
   container.innerHTML = `
-    <section class="admin-card business-module">
+    <section class="business-module">
       <header class="business-header">
-        <h2>🏪 Mi negocio</h2>
+        <h2>🏪 Negocio</h2>
 
         <p>
           Administrá la información de tu comercio.
         </p>
       </header>
 
-      <div class="business-sections">
-        ${renderBusinessInfoSection(business)}
+      <div class="business-layout">
+        <div class="business-column">
+          ${renderBusinessInfoSection(
+            business.info || {}
+          )}
 
-        ${renderBusinessContactSection(business)}
+          ${renderBusinessContactSection(
+            business.contact || {}
+          )}
+        </div>
 
-        ${renderBusinessScheduleSection(business)}
+        <div class="business-column">
+          ${renderBusinessScheduleSection(
+            business.schedule || {}
+          )}
+        </div>
       </div>
     </section>
   `;
 
-  bindBusinessSectionEvents(container);
   bindBusinessFormEvents(container);
   syncBusinessScheduleInputs(container);
 }
 
 
 /* ==========================================================================
-   Information section
+   Information
    ========================================================================== */
 
-function renderBusinessInfoSection(business) {
-  const info = business.info || {};
-
-  const isExpanded =
-    expandedBusinessSection === "info";
-
-  const summary =
-    info.name || "Sin nombre configurado";
-
+function renderBusinessInfoSection(info) {
   return `
-    <section
-      class="business-section ${
-        isExpanded
-          ? "business-section--expanded"
-          : ""
-      }"
-    >
-      <button
-        type="button"
-        class="business-section-summary"
-        data-business-section="info"
-        aria-expanded="${isExpanded}"
-      >
-        <span>
-          <strong>
-            Información del negocio
-          </strong>
+    <section class="business-section">
+      <div class="business-section-header">
+        <h3>Información del negocio</h3>
 
-          <small>
-            ${escapeBusinessHtml(summary)}
-          </small>
-        </span>
+        <p>
+          Datos principales con los que se identifica tu comercio.
+        </p>
+      </div>
 
-        <span aria-hidden="true">
-          ${isExpanded ? "−" : "+"}
-        </span>
-      </button>
-
-      ${
-        isExpanded
-          ? renderBusinessInfoForm(info)
-          : ""
-      }
-    </section>
-  `;
-}
-
-
-function renderBusinessInfoForm(info) {
-  return `
-    <div class="business-section-detail">
       <form data-business-form="info">
-        <label>
-          <span>Nombre</span>
+        <div class="business-field">
+          <label for="business-name">
+            Nombre
+          </label>
 
           <input
+            id="business-name"
             type="text"
             name="name"
             value="${escapeBusinessHtml(
@@ -180,18 +154,21 @@ function renderBusinessInfoForm(info) {
             )}"
             required
           >
-        </label>
+        </div>
 
-        <label>
-          <span>Descripción</span>
+        <div class="business-field">
+          <label for="business-description">
+            Descripción
+          </label>
 
           <textarea
+            id="business-description"
             name="description"
             rows="4"
           >${escapeBusinessHtml(
             info.description || ""
           )}</textarea>
-        </label>
+        </div>
 
         <div class="business-form-actions">
           <button
@@ -208,105 +185,70 @@ function renderBusinessInfoForm(info) {
           aria-live="polite"
         ></p>
       </form>
-    </div>
-  `;
-}
-
-
-/* ==========================================================================
-   Contact section
-   ========================================================================== */
-
-function renderBusinessContactSection(business) {
-  const contact =
-    business.contact || {};
-
-  const isExpanded =
-    expandedBusinessSection === "contact";
-
-  const summary =
-    contact.whatsapp ||
-    contact.phone ||
-    contact.address ||
-    "Sin datos de contacto";
-
-  return `
-    <section
-      class="business-section ${
-        isExpanded
-          ? "business-section--expanded"
-          : ""
-      }"
-    >
-      <button
-        type="button"
-        class="business-section-summary"
-        data-business-section="contact"
-        aria-expanded="${isExpanded}"
-      >
-        <span>
-          <strong>Contacto</strong>
-
-          <small>
-            ${escapeBusinessHtml(summary)}
-          </small>
-        </span>
-
-        <span aria-hidden="true">
-          ${isExpanded ? "−" : "+"}
-        </span>
-      </button>
-
-      ${
-        isExpanded
-          ? renderBusinessContactForm(
-              contact
-            )
-          : ""
-      }
     </section>
   `;
 }
 
 
-function renderBusinessContactForm(contact) {
+/* ==========================================================================
+   Contact
+   ========================================================================== */
+
+function renderBusinessContactSection(contact) {
   return `
-    <div class="business-section-detail">
+    <section class="business-section">
+      <div class="business-section-header">
+        <h3>Contacto</h3>
+
+        <p>
+          Datos que tus clientes pueden utilizar para comunicarse contigo.
+        </p>
+      </div>
+
       <form data-business-form="contact">
-        <label>
-          <span>Teléfono</span>
+        <div class="business-field">
+          <label for="business-phone">
+            Teléfono
+          </label>
 
           <input
+            id="business-phone"
             type="tel"
             name="phone"
             value="${escapeBusinessHtml(
               contact.phone || ""
             )}"
           >
-        </label>
+        </div>
 
-        <label>
-          <span>WhatsApp</span>
+        <div class="business-field">
+          <label for="business-whatsapp">
+            WhatsApp
+          </label>
 
           <input
+            id="business-whatsapp"
             type="tel"
             name="whatsapp"
             value="${escapeBusinessHtml(
               contact.whatsapp || ""
             )}"
           >
-        </label>
+        </div>
 
-        <label>
-          <span>Dirección / referencia</span>
+        <div class="business-field">
+          <label for="business-address">
+            Dirección / referencia
+          </label>
 
           <textarea
+            id="business-address"
             name="address"
             rows="3"
           >${escapeBusinessHtml(
             contact.address || ""
           )}</textarea>
-        </label>
+        </div>
 
         <div class="business-form-actions">
           <button
@@ -323,76 +265,29 @@ function renderBusinessContactForm(contact) {
           aria-live="polite"
         ></p>
       </form>
-    </div>
-  `;
-}
-
-
-/* ==========================================================================
-   Schedule section
-   ========================================================================== */
-
-function renderBusinessScheduleSection(
-  business
-) {
-  const schedule =
-    business.schedule || {};
-
-  const isExpanded =
-    expandedBusinessSection === "schedule";
-
-  const summary =
-    getBusinessScheduleSummary(schedule);
-
-  return `
-    <section
-      class="business-section ${
-        isExpanded
-          ? "business-section--expanded"
-          : ""
-      }"
-    >
-      <button
-        type="button"
-        class="business-section-summary"
-        data-business-section="schedule"
-        aria-expanded="${isExpanded}"
-      >
-        <span>
-          <strong>Horarios</strong>
-
-          <small>
-            ${escapeBusinessHtml(summary)}
-          </small>
-        </span>
-
-        <span aria-hidden="true">
-          ${isExpanded ? "−" : "+"}
-        </span>
-      </button>
-
-      ${
-        isExpanded
-          ? renderBusinessScheduleForm(
-              schedule
-            )
-          : ""
-      }
     </section>
   `;
 }
 
 
-function renderBusinessScheduleForm(
-  schedule
-) {
-  const days = getBusinessDays();
+/* ==========================================================================
+   Schedule
+   ========================================================================== */
 
+function renderBusinessScheduleSection(schedule) {
   return `
-    <div class="business-section-detail">
+    <section class="business-section business-section--schedule">
+      <div class="business-section-header">
+        <h3>Horarios</h3>
+
+        <p>
+          Configurá los días y horarios habituales de atención.
+        </p>
+      </div>
+
       <form data-business-form="schedule">
         <div class="business-schedule">
-          ${days
+          ${getBusinessDays()
             .map(day =>
               renderBusinessScheduleDay(
                 day,
@@ -417,7 +312,7 @@ function renderBusinessScheduleForm(
           aria-live="polite"
         ></p>
       </form>
-    </div>
+    </section>
   `;
 }
 
@@ -445,7 +340,7 @@ function renderBusinessScheduleDay(
           ${day.label}
         </strong>
 
-        <label>
+        <label class="business-schedule-toggle">
           <input
             type="checkbox"
             data-business-day-enabled
@@ -459,8 +354,10 @@ function renderBusinessScheduleDay(
       </div>
 
       <div class="business-schedule-hours">
-        <label>
-          <span>Apertura</span>
+        <div class="business-field">
+          <label>
+            Apertura
+          </label>
 
           <input
             type="time"
@@ -470,10 +367,12 @@ function renderBusinessScheduleDay(
             )}"
             ${enabled ? "" : "disabled"}
           >
-        </label>
+        </div>
 
-        <label>
-          <span>Cierre</span>
+        <div class="business-field">
+          <label>
+            Cierre
+          </label>
 
           <input
             type="time"
@@ -483,39 +382,10 @@ function renderBusinessScheduleDay(
             )}"
             ${enabled ? "" : "disabled"}
           >
-        </label>
+        </div>
       </div>
     </div>
   `;
-}
-
-
-/* ==========================================================================
-   Section interaction
-   ========================================================================== */
-
-function bindBusinessSectionEvents(container) {
-  const sectionButtons =
-    container.querySelectorAll(
-      "[data-business-section]"
-    );
-
-  sectionButtons.forEach(button => {
-    button.addEventListener(
-      "click",
-      () => {
-        const section =
-          button.dataset.businessSection;
-
-        expandedBusinessSection =
-          expandedBusinessSection === section
-            ? null
-            : section;
-
-        renderBusinessContent(container);
-      }
-    );
-  });
 }
 
 
@@ -561,6 +431,11 @@ async function handleBusinessFormSubmit(
     form.querySelector(
       "[data-business-save]"
     );
+
+  const defaultButtonText =
+    section === "schedule"
+      ? "Guardar horarios"
+      : "Guardar cambios";
 
   try {
     const data =
@@ -614,11 +489,8 @@ async function handleBusinessFormSubmit(
 
     if (saveButton) {
       saveButton.disabled = false;
-
       saveButton.textContent =
-        section === "schedule"
-          ? "Guardar horarios"
-          : "Guardar cambios";
+        defaultButtonText;
     }
   }
 }
@@ -856,30 +728,6 @@ function getBusinessDays() {
       label: "Domingo"
     }
   ];
-}
-
-
-function getBusinessScheduleSummary(
-  schedule
-) {
-  const days =
-    getBusinessDays();
-
-  const enabledDays =
-    days.filter(day =>
-      schedule[day.key] &&
-      schedule[day.key].enabled === true
-    );
-
-  if (enabledDays.length === 0) {
-    return "Sin horarios configurados";
-  }
-
-  if (enabledDays.length === 1) {
-    return "1 día configurado";
-  }
-
-  return `${enabledDays.length} días configurados`;
 }
 
 
