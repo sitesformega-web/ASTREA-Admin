@@ -3,15 +3,43 @@
    API
    ========================================================================== */
 
+
 /* ==========================================================================
-   Pending GET requests
+   GET resilience / cache
    ========================================================================== */
 
+/*
+ * Cache corto para navegación rápida entre módulos.
+ *
+ * Objetivo:
+ * reducir llamadas repetidas a Apps Script sin convertir
+ * el frontend en una fuente persistente de datos.
+ */
+const ADMIN_API_GET_CACHE_TTL = 10000;
+
+
+/*
+ * action -> {
+ *   data,
+ *   timestamp
+ * }
+ */
+const ADMIN_API_GET_CACHE =
+  new Map();
+
+
+/*
+ * action -> Promise
+ *
+ * Permite que múltiples GET idénticos simultáneos
+ * reutilicen una misma solicitud real.
+ */
 const ADMIN_API_PENDING_GETS =
   new Map();
 
+
 /* ==========================================================================
-   Base request
+   Public request wrapper
    ========================================================================== */
 
 async function adminApiRequest(
@@ -23,6 +51,10 @@ async function adminApiRequest(
       options.method || "GET"
     ).toUpperCase();
 
+  /*
+   * Las escrituras nunca utilizan cache
+   * ni deduplicación.
+   */
   if (method !== "GET") {
     return executeAdminApiRequest(
       action,
@@ -30,19 +62,48 @@ async function adminApiRequest(
     );
   }
 
+  /*
+   * 1. Intentar responder desde cache reciente.
+   */
+  const cached =
+    getAdminApiCachedResponse(
+      action
+    );
+
+  if (cached !== null) {
+    return cached;
+  }
+
+  /*
+   * 2. Si el mismo GET ya está en curso,
+   * reutilizar su Promise.
+   */
   if (
-    ADMIN_API_PENDING_GETS.has(action)
+    ADMIN_API_PENDING_GETS.has(
+      action
+    )
   ) {
     return ADMIN_API_PENDING_GETS.get(
       action
     );
   }
 
+  /*
+   * 3. Crear la solicitud real.
+   */
   const request =
     executeAdminApiRequest(
       action,
       options
     )
+      .then(data => {
+        setAdminApiCachedResponse(
+          action,
+          data
+        );
+
+        return data;
+      })
       .finally(() => {
         ADMIN_API_PENDING_GETS.delete(
           action
@@ -57,6 +118,11 @@ async function adminApiRequest(
   return request;
 }
 
+
+/* ==========================================================================
+   Base HTTP request
+   ========================================================================== */
+
 async function executeAdminApiRequest(
   action,
   options = {}
@@ -69,20 +135,12 @@ async function executeAdminApiRequest(
   const body =
     options.body || null;
 
-    if (
-  method === "GET" &&
-  ADMIN_API_PENDING_GETS.has(action)
-) {
-  return ADMIN_API_PENDING_GETS.get(
-    action
-  );
-}
-
   /*
-   * GET puede reintentarse de forma segura.
+   * Sólo los GET se reintentan automáticamente.
    *
-   * POST no se reintenta automáticamente porque
-   * algunas operaciones pueden crear datos.
+   * Un POST podría haber sido procesado correctamente
+   * aunque la respuesta se pierda, por lo que repetirlo
+   * podría generar efectos duplicados.
    */
   const retries =
     options.retries !== undefined
@@ -135,6 +193,12 @@ async function executeAdminApiRequest(
           fetchOptions
         );
 
+      /*
+       * Leemos primero como texto.
+       *
+       * Apps Script / Google puede devolver HTML ante
+       * errores temporales de infraestructura.
+       */
       const responseText =
         await response.text();
 
@@ -144,17 +208,16 @@ async function executeAdminApiRequest(
         ) || "";
 
       /*
-       * Apps Script puede devolver HTML cuando
-       * Google presenta un error temporal.
-       *
-       * No intentamos parsearlo directamente
-       * como JSON.
+       * Evitar intentar JSON.parse() sobre páginas
+       * HTML de Google.
        */
       if (
         !contentType.includes(
           "application/json"
         ) &&
-        !looksLikeJson(responseText)
+        !looksLikeJson(
+          responseText
+        )
       ) {
         throw createAdminApiError(
           "El servicio respondió con un formato inesperado.",
@@ -169,7 +232,9 @@ async function executeAdminApiRequest(
 
       try {
         data =
-          JSON.parse(responseText);
+          JSON.parse(
+            responseText
+          );
       } catch (error) {
         throw createAdminApiError(
           "La respuesta del servicio no contiene JSON válido.",
@@ -193,23 +258,33 @@ async function executeAdminApiRequest(
                 response.status
               ),
 
-            status: response.status
+            status:
+              response.status
           }
         );
       }
 
       /*
-       * Error funcional legítimo del backend.
+       * Error funcional válido de ASTREA.
+       *
+       * Ejemplo:
+       * {
+       *   success: false,
+       *   message: "El nombre es obligatorio."
+       * }
        *
        * No debe reintentarse.
        */
-      if (data.success === false) {
+      if (
+        data.success === false
+      ) {
         throw createAdminApiError(
           data.message ||
             "La operación no pudo completarse.",
           {
             retryable: false,
-            status: response.status
+            status:
+              response.status
           }
         );
       }
@@ -219,7 +294,8 @@ async function executeAdminApiRequest(
     } catch (error) {
       if (
         error &&
-        error.name === "AbortError"
+        error.name ===
+          "AbortError"
       ) {
         lastError =
           createAdminApiError(
@@ -243,11 +319,15 @@ async function executeAdminApiRequest(
       }
 
       await adminApiDelay(
-        getAdminRetryDelay(attempt)
+        getAdminRetryDelay(
+          attempt
+        )
       );
 
     } finally {
-      clearTimeout(timeoutId);
+      clearTimeout(
+        timeoutId
+      );
     }
   }
 
@@ -257,8 +337,79 @@ async function executeAdminApiRequest(
   );
 
   throw new Error(
-    getAdminApiUserMessage(lastError)
+    getAdminApiUserMessage(
+      lastError
+    )
   );
+}
+
+
+/* ==========================================================================
+   GET cache
+   ========================================================================== */
+
+function getAdminApiCachedResponse(
+  action
+) {
+  const entry =
+    ADMIN_API_GET_CACHE.get(
+      action
+    );
+
+  if (!entry) {
+    return null;
+  }
+
+  const age =
+    Date.now() -
+    entry.timestamp;
+
+  if (
+    age >=
+    ADMIN_API_GET_CACHE_TTL
+  ) {
+    ADMIN_API_GET_CACHE.delete(
+      action
+    );
+
+    return null;
+  }
+
+  return entry.data;
+}
+
+
+function setAdminApiCachedResponse(
+  action,
+  data
+) {
+  ADMIN_API_GET_CACHE.set(
+    action,
+    {
+      data,
+      timestamp:
+        Date.now()
+    }
+  );
+}
+
+
+/*
+ * Puede invalidar una acción específica
+ * o todo el cache.
+ */
+function clearAdminApiCache(
+  action = null
+) {
+  if (action) {
+    ADMIN_API_GET_CACHE.delete(
+      action
+    );
+
+    return;
+  }
+
+  ADMIN_API_GET_CACHE.clear();
 }
 
 
@@ -266,9 +417,13 @@ async function executeAdminApiRequest(
    API resilience helpers
    ========================================================================== */
 
-function looksLikeJson(value) {
+function looksLikeJson(
+  value
+) {
   const text =
-    String(value || "").trim();
+    String(
+      value || ""
+    ).trim();
 
   return (
     text.startsWith("{") ||
@@ -285,16 +440,23 @@ function createAdminApiError(
   } = {}
 ) {
   const error =
-    new Error(message);
+    new Error(
+      message
+    );
 
-  error.retryable = retryable;
-  error.status = status;
+  error.retryable =
+    retryable;
+
+  error.status =
+    status;
 
   return error;
 }
 
 
-function isRetryableAdminStatus(status) {
+function isRetryableAdminStatus(
+  status
+) {
   return (
     status === 408 ||
     status === 425 ||
@@ -304,7 +466,9 @@ function isRetryableAdminStatus(status) {
 }
 
 
-function getAdminRetryDelay(attempt) {
+function getAdminRetryDelay(
+  attempt
+) {
   const delays = [
     500,
     1200
@@ -312,30 +476,43 @@ function getAdminRetryDelay(attempt) {
 
   return (
     delays[attempt] ||
-    delays[delays.length - 1]
+    delays[
+      delays.length - 1
+    ]
   );
 }
 
 
-function adminApiDelay(milliseconds) {
-  return new Promise(resolve => {
-    setTimeout(
-      resolve,
-      milliseconds
-    );
-  });
+function adminApiDelay(
+  milliseconds
+) {
+  return new Promise(
+    resolve => {
+      setTimeout(
+        resolve,
+        milliseconds
+      );
+    }
+  );
 }
 
 
-function getAdminApiUserMessage(error) {
+function getAdminApiUserMessage(
+  error
+) {
   if (!error) {
-    return "No se pudo comunicar con el servicio.";
+    return (
+      "No se pudo comunicar con el servicio."
+    );
   }
 
   /*
-   * Mantener mensajes funcionales reales.
+   * Mantener los mensajes funcionales
+   * enviados legítimamente por ASTREA.
    */
-  if (error.retryable === false) {
+  if (
+    error.retryable === false
+  ) {
     return error.message;
   }
 
@@ -356,40 +533,87 @@ async function adminFetchProducts() {
       "adminProducts"
     );
 
-  return data.products || [];
-}
-
-
-async function adminCreateProduct(product) {
-  return await adminApiRequest(
-    "createProduct",
-    {
-      method: "POST",
-      body: product
-    }
+  return (
+    data.products || []
   );
 }
 
 
-async function adminUpdateProduct(product) {
-  return await adminApiRequest(
-    "updateProduct",
-    {
-      method: "POST",
-      body: product
-    }
+async function adminCreateProduct(
+  product
+) {
+  const result =
+    await adminApiRequest(
+      "createProduct",
+      {
+        method: "POST",
+        body: product
+      }
+    );
+
+  /*
+   * Products cambió.
+   * La próxima lectura debe venir del backend.
+   */
+  clearAdminApiCache(
+    "adminProducts"
   );
+
+  clearAdminApiCache(
+    "products"
+  );
+
+  return result;
 }
 
 
-async function adminToggleProduct(id) {
-  return await adminApiRequest(
-    "toggleProduct",
-    {
-      method: "POST",
-      body: { id }
-    }
+async function adminUpdateProduct(
+  product
+) {
+  const result =
+    await adminApiRequest(
+      "updateProduct",
+      {
+        method: "POST",
+        body: product
+      }
+    );
+
+  clearAdminApiCache(
+    "adminProducts"
   );
+
+  clearAdminApiCache(
+    "products"
+  );
+
+  return result;
+}
+
+
+async function adminToggleProduct(
+  id
+) {
+  const result =
+    await adminApiRequest(
+      "toggleProduct",
+      {
+        method: "POST",
+        body: {
+          id
+        }
+      }
+    );
+
+  clearAdminApiCache(
+    "adminProducts"
+  );
+
+  clearAdminApiCache(
+    "products"
+  );
+
+  return result;
 }
 
 
@@ -403,7 +627,9 @@ async function adminFetchOrders() {
       "orders"
     );
 
-  return data.orders || [];
+  return (
+    data.orders || []
+  );
 }
 
 
@@ -411,16 +637,37 @@ async function adminUpdateOrderStatus(
   orderId,
   status
 ) {
-  return await adminApiRequest(
-    "updateOrderStatus",
-    {
-      method: "POST",
-      body: {
-        orderId,
-        status
+  const result =
+    await adminApiRequest(
+      "updateOrderStatus",
+      {
+        method: "POST",
+        body: {
+          orderId,
+          status
+        }
       }
-    }
+    );
+
+  /*
+   * El listado de pedidos cambió.
+   */
+  clearAdminApiCache(
+    "orders"
   );
+
+  /*
+   * Customers deriva última compra
+   * desde Orders.
+   *
+   * Invalidarlo mantiene segura
+   * la relación entre ambos dominios.
+   */
+  clearAdminApiCache(
+    "customers"
+  );
+
+  return result;
 }
 
 
@@ -434,25 +681,34 @@ async function adminFetchCustomers() {
       "customers"
     );
 
-  return (data.customers || []).map(
+  return (
+    data.customers || []
+  ).map(
     customer => ({
-      id: customer.id,
+      id:
+        customer.id,
 
-      name: customer.nombre,
+      name:
+        customer.nombre,
 
-      phone: customer.telefono,
+      phone:
+        customer.telefono,
 
-      category: customer.categoria,
+      category:
+        customer.categoria,
 
-      notes: customer.notas,
+      notes:
+        customer.notas,
 
       active:
         customer.activo === true ||
-        customer.activo === "TRUE",
+        customer.activo ===
+          "TRUE",
 
-      orders: Number(
-        customer.orders || 0
-      ),
+      orders:
+        Number(
+          customer.orders || 0
+        ),
 
       lastPurchase:
         customer.ultimaCompra,
@@ -467,24 +723,37 @@ async function adminFetchCustomers() {
 }
 
 
-async function adminUpdateCustomer(customer) {
-  return await adminApiRequest(
-    "updateCustomer",
-    {
-      method: "POST",
+async function adminUpdateCustomer(
+  customer
+) {
+  const result =
+    await adminApiRequest(
+      "updateCustomer",
+      {
+        method: "POST",
 
-      body: {
-        id: customer.id,
+        body: {
+          id:
+            customer.id,
 
-        nombre: customer.name,
+          nombre:
+            customer.name,
 
-        telefono: customer.phone,
+          telefono:
+            customer.phone,
 
-        notas:
-          customer.notes || ""
+          notas:
+            customer.notes ||
+            ""
+        }
       }
-    }
+    );
+
+  clearAdminApiCache(
+    "customers"
   );
+
+  return result;
 }
 
 
@@ -498,7 +767,9 @@ async function adminFetchBusiness() {
       "business"
     );
 
-  return data.business || null;
+  return (
+    data.business || null
+  );
 }
 
 
@@ -506,15 +777,26 @@ async function adminUpdateBusiness(
   section,
   data
 ) {
-  return await adminApiRequest(
-    "updateBusiness",
-    {
-      method: "POST",
+  const result =
+    await adminApiRequest(
+      "updateBusiness",
+      {
+        method: "POST",
 
-      body: {
-        section,
-        data
+        body: {
+          section,
+          data
+        }
       }
-    }
+    );
+
+  /*
+   * Business cambió.
+   * Evitamos reutilizar un GET anterior.
+   */
+  clearAdminApiCache(
+    "business"
   );
+
+  return result;
 }
