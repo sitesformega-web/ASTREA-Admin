@@ -10,6 +10,7 @@ const ADMIN_STATE = {
   orders: [],
   products: [],
   customers: [],
+  business: null,
 
   ordersFilter: "pending",
   expandedOrderId: null,
@@ -74,4 +75,12 @@ function setCreatingCustomer(value) {
 
 function setEditingCustomer(customerId) {
   ADMIN_STATE.editingCustomerId = customerId || null;
+}
+
+/* ==========================================================================
+   Business
+   ========================================================================== */
+
+function setBusiness(business) {
+  ADMIN_STATE.business = business || null;
 }
