@@ -1,114 +1,41 @@
 /* ==========================================================================
-   API request cache
+   ASTREA™ Admin
+   API
    ========================================================================== */
 
-const ADMIN_API_GET_CACHE_TTL = 10000;
 
-const ADMIN_API_GET_CACHE =
-  new Map();
-
-const ADMIN_API_PENDING_GETS =
-  new Map();
+/* ==========================================================================
+   Base request
+   ========================================================================== */
 
 async function adminApiRequest(
   action,
   options = {}
 ) {
-  const {
-    method = "GET",
-    body = null,
-    retries = 2,
-    timeout = 12000,
-    useCache = true
-  } = options;
+  const method =
+    String(
+      options.method || "GET"
+    ).toUpperCase();
 
-  const normalizedMethod =
-    String(method).toUpperCase();
+  const body =
+    options.body || null;
 
   /*
-   * Sólo cacheamos GET.
+   * GET puede reintentarse de forma segura.
    *
-   * POST y cualquier futura operación de escritura
-   * siempre llegan al backend.
+   * POST no se reintenta automáticamente porque
+   * algunas operaciones pueden crear datos.
    */
-  if (
-    normalizedMethod === "GET" &&
-    useCache
-  ) {
-    const cached =
-      getAdminApiCachedResponse(action);
+  const retries =
+    options.retries !== undefined
+      ? options.retries
+      : method === "GET"
+        ? 2
+        : 0;
 
-    if (cached !== null) {
-      return cached;
-    }
+  const timeout =
+    options.timeout || 12000;
 
-    /*
-     * Si ya existe exactamente este GET en curso,
-     * reutilizamos su Promise.
-     */
-    if (
-      ADMIN_API_PENDING_GETS.has(action)
-    ) {
-      return ADMIN_API_PENDING_GETS.get(
-        action
-      );
-    }
-
-    const request =
-      executeAdminApiRequest(
-        action,
-        {
-          method: normalizedMethod,
-          body,
-          retries,
-          timeout
-        }
-      )
-        .then(data => {
-          setAdminApiCachedResponse(
-            action,
-            data
-          );
-
-          return data;
-        })
-        .finally(() => {
-          ADMIN_API_PENDING_GETS.delete(
-            action
-          );
-        });
-
-    ADMIN_API_PENDING_GETS.set(
-      action,
-      request
-    );
-
-    return request;
-  }
-
-  /*
-   * Las escrituras nunca usan cache.
-   */
-  return executeAdminApiRequest(
-    action,
-    {
-      method: normalizedMethod,
-      body,
-      retries,
-      timeout
-    }
-  );
-}
-
-async function executeAdminApiRequest(
-  action,
-  {
-    method = "GET",
-    body = null,
-    retries = 2,
-    timeout = 12000
-  } = {}
-) {
   const url =
     `${ADMIN_CONFIG.api.endpoint}?action=${encodeURIComponent(action)}`;
 
@@ -158,159 +85,12 @@ async function executeAdminApiRequest(
           "content-type"
         ) || "";
 
-      if (
-        !contentType.includes(
-          "application/json"
-        ) &&
-        !looksLikeJson(responseText)
-      ) {
-        throw createAdminApiError(
-          "El servicio respondió con un formato inesperado.",
-          {
-            retryable: true,
-            status: response.status
-          }
-        );
-      }
-
-      let data;
-
-      try {
-        data =
-          JSON.parse(responseText);
-      } catch (error) {
-        throw createAdminApiError(
-          "La respuesta del servicio no contiene JSON válido.",
-          {
-            retryable: true,
-            status: response.status
-          }
-        );
-      }
-
-      if (!response.ok) {
-        throw createAdminApiError(
-          data.message ||
-            `Error HTTP ${response.status}.`,
-          {
-            retryable:
-              isRetryableAdminStatus(
-                response.status
-              ),
-
-            status: response.status
-          }
-        );
-      }
-
-      if (data.success === false) {
-        throw createAdminApiError(
-          data.message ||
-            "La operación no pudo completarse.",
-          {
-            retryable: false,
-            status: response.status
-          }
-        );
-      }
-
-      return data;
-
-    } catch (error) {
-      if (
-        error &&
-        error.name === "AbortError"
-      ) {
-        lastError =
-          createAdminApiError(
-            "El servicio tardó demasiado en responder.",
-            {
-              retryable: true
-            }
-          );
-      } else {
-        lastError = error;
-      }
-
-      const canRetry =
-        lastError &&
-        lastError.retryable === true &&
-        attempt < retries;
-
-      if (!canRetry) {
-        break;
-      }
-
-      await adminApiDelay(
-        getAdminRetryDelay(attempt)
-      );
-
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }
-
-  console.error(
-    `[ASTREA API] ${action}`,
-    lastError
-  );
-
-  throw new Error(
-    getAdminApiUserMessage(lastError)
-  );
-}
-
-function getAdminApiCachedResponse(
-  action
-) {
-  const entry =
-    ADMIN_API_GET_CACHE.get(action);
-
-  if (!entry) {
-    return null;
-  }
-
-  const age =
-    Date.now() - entry.timestamp;
-
-  if (age >= ADMIN_API_GET_CACHE_TTL) {
-    ADMIN_API_GET_CACHE.delete(action);
-
-    return null;
-  }
-
-  return entry.data;
-}
-
-
-function setAdminApiCachedResponse(
-  action,
-  data
-) {
-  ADMIN_API_GET_CACHE.set(
-    action,
-    {
-      data,
-      timestamp: Date.now()
-    }
-  );
-}
-
-
-function clearAdminApiCache(action) {
-  if (action) {
-    ADMIN_API_GET_CACHE.delete(action);
-
-    return;
-  }
-
-  ADMIN_API_GET_CACHE.clear();
-}
       /*
-       * Apps Script puede responder HTML ante
-       * fallos temporales de infraestructura.
+       * Apps Script puede devolver HTML cuando
+       * Google presenta un error temporal.
        *
-       * No intentamos parsearlo como JSON.
+       * No intentamos parsearlo directamente
+       * como JSON.
        */
       if (
         !contentType.includes(
@@ -361,13 +141,7 @@ function clearAdminApiCache(action) {
       }
 
       /*
-       * Error funcional devuelto por ASTREA.
-       *
-       * Ejemplo:
-       * {
-       *   success: false,
-       *   message: "El nombre es obligatorio."
-       * }
+       * Error funcional legítimo del backend.
        *
        * No debe reintentarse.
        */
@@ -401,6 +175,7 @@ function clearAdminApiCache(action) {
       }
 
       const canRetry =
+        method === "GET" &&
         lastError &&
         lastError.retryable === true &&
         attempt < retries;
@@ -500,8 +275,7 @@ function getAdminApiUserMessage(error) {
   }
 
   /*
-   * Los errores funcionales del backend
-   * conservan su mensaje original.
+   * Mantener mensajes funcionales reales.
    */
   if (error.retryable === false) {
     return error.message;
@@ -513,17 +287,20 @@ function getAdminApiUserMessage(error) {
   );
 }
 
+
 /* ==========================================================
    Products
    ========================================================== */
 
 async function adminFetchProducts() {
-  const data = await adminApiRequest(
-    "adminProducts"
-  );
+  const data =
+    await adminApiRequest(
+      "adminProducts"
+    );
 
   return data.products || [];
 }
+
 
 async function adminCreateProduct(product) {
   return await adminApiRequest(
@@ -535,6 +312,7 @@ async function adminCreateProduct(product) {
   );
 }
 
+
 async function adminUpdateProduct(product) {
   return await adminApiRequest(
     "updateProduct",
@@ -544,6 +322,7 @@ async function adminUpdateProduct(product) {
     }
   );
 }
+
 
 async function adminToggleProduct(id) {
   return await adminApiRequest(
@@ -555,17 +334,20 @@ async function adminToggleProduct(id) {
   );
 }
 
+
 /* ==========================================================
    Orders
    ========================================================== */
 
 async function adminFetchOrders() {
-  const data = await adminApiRequest(
-    "orders"
-  );
+  const data =
+    await adminApiRequest(
+      "orders"
+    );
 
   return data.orders || [];
 }
+
 
 async function adminUpdateOrderStatus(
   orderId,
@@ -583,14 +365,16 @@ async function adminUpdateOrderStatus(
   );
 }
 
+
 /* ==========================================================
    Customers
    ========================================================== */
 
 async function adminFetchCustomers() {
-  const data = await adminApiRequest(
-    "customers"
-  );
+  const data =
+    await adminApiRequest(
+      "customers"
+    );
 
   return (data.customers || []).map(
     customer => ({
@@ -613,14 +397,17 @@ async function adminFetchCustomers() {
       ),
 
       lastPurchase:
-      customer.ultimaCompra,
+        customer.ultimaCompra,
 
-      createdAt: customer.createdAt,
+      createdAt:
+        customer.createdAt,
 
-      updatedAt: customer.updatedAt
+      updatedAt:
+        customer.updatedAt
     })
   );
 }
+
 
 async function adminUpdateCustomer(customer) {
   return await adminApiRequest(
@@ -635,23 +422,27 @@ async function adminUpdateCustomer(customer) {
 
         telefono: customer.phone,
 
-        notas: customer.notes || ""
+        notas:
+          customer.notes || ""
       }
     }
   );
 }
+
 
 /* ==========================================================
    Business
    ========================================================== */
 
 async function adminFetchBusiness() {
-  const data = await adminApiRequest(
-    "business"
-  );
+  const data =
+    await adminApiRequest(
+      "business"
+    );
 
   return data.business || null;
 }
+
 
 async function adminUpdateBusiness(
   section,
@@ -661,6 +452,7 @@ async function adminUpdateBusiness(
     "updateBusiness",
     {
       method: "POST",
+
       body: {
         section,
         data
