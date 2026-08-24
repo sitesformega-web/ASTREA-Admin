@@ -10,7 +10,7 @@ async function adminApiRequest(
   } = options;
 
   const url =
-    `${ADMIN_CONFIG.API_URL}?action=${encodeURIComponent(action)}`;
+    `${ADMIN_CONFIG.api.endpoint}?action=${encodeURIComponent(action)}`;
 
   let lastError = null;
 
