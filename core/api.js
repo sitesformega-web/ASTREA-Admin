@@ -145,3 +145,31 @@ async function adminUpdateCustomer(customer) {
     }
   );
 }
+
+/* ==========================================================
+   Business
+   ========================================================== */
+
+async function adminFetchBusiness() {
+  const data = await adminApiRequest(
+    "business"
+  );
+
+  return data.business || null;
+}
+
+async function adminUpdateBusiness(
+  section,
+  data
+) {
+  return await adminApiRequest(
+    "updateBusiness",
+    {
+      method: "POST",
+      body: {
+        section,
+        data
+      }
+    }
+  );
+}
